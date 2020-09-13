@@ -1,0 +1,102 @@
+\documentclass{article}
+\usepackage[a4paper, margin=2cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{amstext}
+\usepackage{amsthm}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\rhead{Alexandre Adam}
+\lhead{IFT6269 ― Probabilistic Graphical Models}
+\chead{Homework 1}
+\rfoot{\today}
+\cfoot{\thepage}
+
+
+\newcommand{\s}{\hspace{0.1cm}}
+\numberwithin{equation}{section}
+\renewcommand\thesubsection{\alph{subsection})}
+\renewcommand\thesubsubsection{\roman{subsubsection}}
+
+\begin{document}
+
+\section{Probability and independence}
+\subsection{Decomposition}
+We aim to validate
+\begin{equation}
+        (X \perp Y, W \mid  Z)  \implies (X \perp Y \mid Z)
+\end{equation}
+\textit{Proof}.  We suppose the statement $(X \perp Y,\ W \mid Z)$ is true. 
+It follows from the definition of the conditional independence that
+$p(x, y, w \mid z) = p(x\mid z) p(y, w\mid z)$ for all 
+$x \in  \Omega_x$, $(y, w) \in \Omega_y \times  \Omega_w$  and $z \in  \Omega_z$.
+We then consider the marginalize  $p(x,y,w \mid z)$:
+\begin{align*}
+        p(x,y|z) &=  \sum_{w\s \in \s \Omega_w}  p(x, y , w \mid z) \\
+                 &=  \sum_{w\s \in \s \Omega_w} p(x\mid z)p(y,w \mid z) \\
+                 &= p(x \mid z) \sum_{w\s  \in \s  \Omega_w} p(y,w \mid z) \\
+                &=  p(x\mid z) p(y\mid  z)
+\end{align*}
+from which we conclude that  $(X \perp Y \mid Z) \qed$.
+By symmetry of the argument,  we can show that ${(X \perp W \mid Z)}$ is true as well.
+
+\subsection{}
+We aim to validate 
+\begin{equation}\label{eq:1b}
+       (X \perp Y \mid Z) \s \text{and} \s (X, Y \perp  W \mid Z) \implies (X \perp W \mid Z)  
+\end{equation}
+\textit{Proof}. Suppose $(X, Y \perp  W \mid Z)$ and $(X \perp Y \mid Z)$ are true.
+We know from the symmetry and decomposition properties of  
+the  conditional independence that  
+$(X, Y \perp W \mid  Z)  \implies  (W \perp X, Y \mid Z)  \implies  (X \perp  W \mid Z)$.
+Therefore $ (X \perp W \mid Z)$ is true $\qed$.
+
+
+\subsection{}
+We aim to validate
+\begin{equation}
+        (X \perp Y,W \mid Z) \s \text{and} \s (Y \perp W \mid Z) \implies  (X,W \perp Y \mid Z)
+\end{equation}
+\textit{Proof}. Suppose $(X \perp Y,W \mid Z)$ is true. 
+Then it follows from the definition of conditional independence that
+\begin{align*}
+        p(x,y,w \mid z) = p(x \mid z) p(y,w \mid z) 
+\end{align*}
+Then assume $(Y \perp W \mid Z)$ is true. The second factor can be factorized
+\begin{align*}
+        p(x,y,w \mid z) = p(x \mid z) p(y \mid z) p(w \mid z)
+\end{align*}
+From the decomposition property, we know $(X \perp W \mid Z)$ is true. Thus
+\begin{align*}
+        p(x,y,w \mid z)  = p(x,w \mid z) p(y \mid z)
+\end{align*}
+From which we conclude $(X,W \perp Y \mid Z)$ is true $\qed$.
+
+\subsection{}
+We aim to validate
+\begin{equation}
+        (X \perp Y \mid Z) \s \text{and} \s (X \perp Y \mid W) \implies (X \perp Y \mid Z,W)
+\end{equation}
+\textit{Counter example}. We consider the following R.V.
+\begin{enumerate}
+        \item X: Person A arrive late for diner;
+        \item Y: Person B arrive late for diner;
+        \item W: They come from the same city;
+        \item Z: They work in the same city.
+\end{enumerate}
+For this situation, we see that X and Y are conditionally independent when 
+given either W or Z. If we know they are from the same city, then they might work 
+in different cities and take different route home. Thus knowing person A was late doesn't inform 
+us on the probability of person B to arrive late. \par
+A similar argument can be made for  $(X \perp Y \mid Z)$. \par
+Thus the LHS of the proposition is true, yet the RHS is clearly false in our case. 
+Assuming we were given that W, Z are true, this is akin to a geolocalisation of person A and B,
+so if we were given that 
+person A would be late for diner, then we'd be able to make a good guess that person B would 
+be late as well (they both would be impacted by the traffic jam or whatnot).
+Thus the proposition is false.
+
+\section{Bayesian inferance and MAP}
+
+\end{document}
