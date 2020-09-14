@@ -2,9 +2,11 @@
 \usepackage[a4paper, margin=2cm]{geometry}
 
 \usepackage{amsmath}
+\usepackage{bm}
 \usepackage{amstext}
 \usepackage{amsthm}
 \usepackage{fancyhdr}
+\usepackage{amssymb}
 
 \pagestyle{fancy}
 \rhead{Alexandre Adam}
@@ -91,12 +93,114 @@ in different cities and take different route home. Thus knowing person A was lat
 us on the probability of person B to arrive late. \par
 A similar argument can be made for  $(X \perp Y \mid Z)$. \par
 Thus the LHS of the proposition is true, yet the RHS is clearly false in our case. 
-Assuming we were given that W, Z are true, this is akin to a geolocalisation of person A and B,
-so if we were given that 
+Assuming we were given that W and Z are true, then we are given the geolocalisation 
+of person A and B.
+If we were given that 
 person A would be late for diner, then we'd be able to make a good guess that person B would 
-be late as well (they both would be impacted by the traffic jam or whatnot).
+be late as well (they would both be impacted by the same traffic jam or whatnot).
 Thus the proposition is false.
 
 \section{Bayesian inferance and MAP}
+Let $\mathbf{X}_1, \dots , \mathbf{X}_n \bm{\mid} \bm{\pi} \overset{\text{iid} }{\sim} 
+\text{Multinomial} (1, \bm{ \pi} )$ on k element. The values are sampled from a set of cardinality 
+2, that is $x^{(i)}_j \in \left\{ 0, 1 \right\}$. Each R.V. has only one non-zero 
+entry for a given trial, that is $\sum_{j = 1}^k x^{(i)}_j = 1$. \par
+We assume a Dirichlet prior $\bm{ \pi} \sim \text{Dir} ( \bm{ \alpha} )$ with 
+a PDF
+\[
+        p(\bm{ \pi}  \mid \bm{ \alpha} ) = \frac{\Gamma ( \sum _{i = 1}^k \alpha_j) }{
+        \prod_{j=1}^k \Gamma(\alpha_j)} \prod_{j = 1}^k \pi_j^{\alpha_j - 1}
+\]
+
+\subsection{}
+Since the data is IID, they are mutually independent by definition. Being given the 
+parameters of their Multinomial distribution (or a subset for that matter) 
+does not change the independence of the $\mathbf{X}$'s. Thus, 
+\[
+        (\mathbf{X}_i \perp \mathbf{X}_j \mid \bm{ \pi}) \s \forall \s (i,j) \s \in 
+        \left\{ 1,\dots ,k \right\} \times \left\{ 1,\dots ,k \right\}
+\]
+Of course, none of the vector can be mutually nor conditionally independent to $\bm{ \pi} $ 
+since it contains information about the distribution of the one hot vectors $\mathbf{X}_i$. 
+In this case $\bm{ \pi} $ are the probabilities of one of the $k$ entry to be equal 
+to one. Even giving one of these away is enough to impact the posterior distribution 
+of the conditional $p(x_i\mid x_\ell, \pi_j )$ for example.
+
+\subsection{}
+The posterior distribution $p( \bm{ \pi} \mid x_1 , \dots , x_n) $ is computed via 
+the Bayes rule
+\[
+        p(\bm{ \pi} \mid \mathbf{x}_{1:n}) = 
+        \frac{p(\mathbf{x}_{1:n} \mid \bm{ \pi} ) p(\bm{ \pi}) }{p(\mathbf{x}_{1:n})}
+\]
+where $p(\bm{ \pi} ) = p(\bm{ \pi} \mid \bm{\alpha} )$ is the prior for $\bm{ \pi} $
+defined above. For the sakes of determining the 
+posterior distribution nature, we can postpone the derivation of the marginal likelihood.
+The likelihood 
+is given by the product of $n$ Multinomial PMF given individually by
+\[
+        p(\mathbf{x}_i \mid \bm{ \pi} ) = \frac{1}{\prod_{\ell=1}^k x^{(i)}_\ell!} 
+        \prod_{j=1}^k \pi_j^{x^{(i)}_j}
+\]
+Since $\sum_{j=1}^kx^{(i)}_j = 1$, then the product in the denominator is unity.
+Therefore, the posterior must be
+\[
+        p(\bm{ \pi} \mid \mathbf{x}_{1:n} ) \propto 
+        \prod_{i = 1}^n \prod_{j=1}^k \pi_j^{x_j^{(i)}}
+        \left( \frac{\Gamma(\sum_{\ell = 1}^k \alpha_\ell)}{\prod_{\ell}^k \Gamma(\alpha_{\ell})}
+                \prod_{\ell = 1}^k \pi_\ell^{\alpha_\ell -1}
+        \right) 
+\]
+We use the fact that we can swap around product operator for real numbers and ignore 
+the Dirichlet normalizing constant for the sake of the argument
+\[
+         p(\bm{ \pi} \mid \mathbf{x}_{1:n} ) \propto 
+        \prod_{i = 1}^n \prod_{j=1}^k 
+                      \prod_{\ell = 1}^k \pi_\ell^{\alpha_\ell -1}\pi_j^{x_j^{(i)}}
+
+\]
+We can readily see that the resulting distribution will be a Dirichlet with 
+updated $\alpha_\ell$'s. 
+
+\textbf{The posterior distribution is a \underline{Dirichlet} distribution with parameters 
+$\alpha_j'= \alpha_j + \sum_{i = 1}^n x_j^{(i)} $}.
+
+\subsection{Marginal Likelihood}
+ The marginal likelihood $p(\mathbf{x}_{1:n})$ 
+is a normalizing constant defined as the 
+integral of the numerator over all instantiation of $\bm{ \pi} $
+\[
+        p(\mathbf{x}_{1:n}) = \int_{\bm{ \Delta_k}} 
+        p(\mathbf{x}_{1:n} \mid \bm{ \pi})  p(\bm{ \pi} )d^{(k)}\bm{ \pi}  
+\]
+where $\bm{ \Delta}_k $ is the probability simplex. In term of the quantities 
+defined above, this is
+\[
+         p(\mathbf{x}_{1:n}) = \int_{\bm{ \Delta_k}} 
+         d^{(k)}\bm{ \pi} 
+        \prod_{i = 1}^n \prod_{j = 1}^k \pi_j^{x_j^{(i)}}
+        \left( 
+         \frac{\Gamma ( \sum _{\ell = 1}^k \alpha_\ell) }{\prod_{\ell=1}^k \Gamma(\alpha_\ell)} 
+         \prod_{\ell = 1}^k \pi_\ell^{\alpha_\ell - 1}
+        \right) 
+\]
+The $\pi_j$'s are independent variables since the simplex $\bm{ \Delta}_k $ is crucially 
+defined as an affine plane in an Euclidian space which is supported by 
+a set of orthonormal vectors.
+%The crucial point is that the base space is an Euclidian space 
+%spaned by orthonormal vectors.
+Thus, our task is to evaluate $k$ identical integrals of the form
+\[
+        \int_0^1 d\pi_j \prod_{i = 1}^n \pi_j^{x_j^{(i)} + \alpha_j - 1}
+        = 
+        \left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right)^{-1}
+\]
+Thus
+\[
+        \boxed{p(\mathbf{x}_{1:n}) = 
+         \frac{\Gamma ( \sum _{\ell = 1}^k \alpha_\ell) }{\prod_{\ell=1}^k \Gamma(\alpha_\ell)} 
+ \left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right)^{-k}}
+\]
+
 
 \end{document}
