@@ -8,9 +8,12 @@
 \usepackage{fancyhdr}
 \usepackage{amssymb}
 
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\R}{\mathbb{R}}
+
 \pagestyle{fancy}
-\rhead{Alexandre Adam}
-\lhead{IFT6269 ― Probabilistic Graphical Models}
+\rhead{Alexandre Adam \\ 20090755}
+\lhead{IFT6269 ― Probabilistic Graphical Models \\ Simone Lacoste-Julien}
 \chead{Homework 1}
 \rfoot{\today}
 \cfoot{\thepage}
@@ -19,7 +22,9 @@
 \newcommand{\s}{\hspace{0.1cm}}
 \numberwithin{equation}{section}
 \renewcommand\thesubsection{\alph{subsection})}
-\renewcommand\thesubsubsection{\roman{subsubsection}}
+\renewcommand\thesubsubsection{\Roman{subsubsection}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert_2}
+\newcommand{\mle}[1]{\hat{#1}_{\text{MLE}}}
 
 \begin{document}
 
@@ -134,29 +139,41 @@ the Bayes rule
         \frac{p(\mathbf{x}_{1:n} \mid \bm{ \pi} ) p(\bm{ \pi}) }{p(\mathbf{x}_{1:n})}
 \]
 where $p(\bm{ \pi} ) = p(\bm{ \pi} \mid \bm{\alpha} )$ is the prior for $\bm{ \pi} $
-defined above. For the sakes of determining the 
-posterior distribution nature, we can postpone the derivation of the marginal likelihood.
-The likelihood 
-is given by the product of $n$ Multinomial PMF given individually by
+defined above. For the sake of determining the 
+posterior distribution, we can postpone the derivation of the marginal likelihood.
+%The likelihood is the joint probability of $n$ 
+The likelihood $p(\mathbf{x}_{1:n} \mid \bm{ \pi} )$ is the probability mass function 
+corresponding to $n$ trials of a $k-$sided die throw. We define the vector 
+$\bm{\chi} \equiv \sum_{i=1}^n \mathbf{x}_j$ with the property
 \[
-        p(\mathbf{x}_i \mid \bm{ \pi} ) = \frac{1}{\prod_{\ell=1}^k x^{(i)}_\ell!} 
-        \prod_{j=1}^k \pi_j^{x^{(i)}_j}
+        \sum_{j = 1}^k \chi_j = n
 \]
-Since $\sum_{j=1}^kx^{(i)}_j = 1$, then the product in the denominator is unity.
+It becomes clear that the likelihood follows the 
+$ \text{Multinomial}(n, \bm{ \pi})  $ distribution. 
+The PMF is given by
+\[
+        p(\mathbf{x}_{1:n} \mid \bm{ \pi} ) =
+\binom{n}{\chi_1,\dots,\chi_k}
+        \prod_{j=1}^k \pi_j^{\chi_j}
+        \propto 
+        \prod_{i = 1}^n
+        \prod_{j=1}^k \pi_j^{x_j^{(i)}}
+\]
+Where it is agreed that $\chi_j = \sum_{i = 1}^n x^{(i)}_j$. 
 Therefore, the posterior must be
 \[
         p(\bm{ \pi} \mid \mathbf{x}_{1:n} ) \propto 
         \prod_{i = 1}^n \prod_{j=1}^k \pi_j^{x_j^{(i)}}
-        \left( \frac{\Gamma(\sum_{\ell = 1}^k \alpha_\ell)}{\prod_{\ell}^k \Gamma(\alpha_{\ell})}
+        %\left( \frac{\Gamma(\sum_{\ell = 1}^k \alpha_\ell)}{\prod_{\ell}^k \Gamma(\alpha_{\ell})}
                 \prod_{\ell = 1}^k \pi_\ell^{\alpha_\ell -1}
-        \right) 
-\]
-We use the fact that we can swap around product operator for real numbers and ignore 
-the Dirichlet normalizing constant for the sake of the argument
+        %\right) 
+\] 
+We use the fact that we can swap around product operator for real numbers.
 \[
          p(\bm{ \pi} \mid \mathbf{x}_{1:n} ) \propto 
         \prod_{i = 1}^n \prod_{j=1}^k 
                       \prod_{\ell = 1}^k \pi_\ell^{\alpha_\ell -1}\pi_j^{x_j^{(i)}}
+                      = \prod_{j = 1}^k \pi_j^{\sum_{i = 1}^n x_j^{(i)} + \alpha_j -1}
 
 \]
 We can readily see that the resulting distribution will be a Dirichlet with 
@@ -178,7 +195,8 @@ defined above, this is
 \[
          p(\mathbf{x}_{1:n}) = \int_{\bm{ \Delta_k}} 
          d^{(k)}\bm{ \pi} 
-        \prod_{i = 1}^n \prod_{j = 1}^k \pi_j^{x_j^{(i)}}
+         \binom{n}{\chi_1,\dots,\chi_k}
+       \prod_{j = 1}^k \pi_j^{\chi_j}
         \left( 
          \frac{\Gamma ( \sum _{\ell = 1}^k \alpha_\ell) }{\prod_{\ell=1}^k \Gamma(\alpha_\ell)} 
          \prod_{\ell = 1}^k \pi_\ell^{\alpha_\ell - 1}
@@ -191,15 +209,245 @@ a set of orthonormal vectors.
 %spaned by orthonormal vectors.
 Thus, our task is to evaluate $k$ identical integrals of the form
 \[
-        \int_0^1 d\pi_j \prod_{i = 1}^n \pi_j^{x_j^{(i)} + \alpha_j - 1}
+        \int_0^1 d\pi_j \pi_j^{\sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1}
         = 
-        \left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right)^{-1}
+        \left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right)^{-1},
+        \s\s\s
+        \left\{ \alpha_j > 0 \right\}
 \]
 Thus
 \[
-        \boxed{p(\mathbf{x}_{1:n}) = 
+        p(\mathbf{x}_{1:n}) = 
+         \binom{n}{\chi_1,\dots,\chi_k}
          \frac{\Gamma ( \sum _{\ell = 1}^k \alpha_\ell) }{\prod_{\ell=1}^k \Gamma(\alpha_\ell)} 
- \prod_{j = 1}^k\left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right)^{-1}}
+ \prod_{j = 1}^k\left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right)^{-1}
+
+
+\]
+ \subsection{$\hat{\bm{\pi}}_{\text{MAP}}  $}
+ The maximum \textit{a posteriori} of the Multinomial distribution is
+ \[
+         \bm{ \hat{\pi}}_{\text{MAP}} \equiv \underset{\bm{ \pi}  \s \in \s \bm{ \Delta}_k }{\text{argmax}}
+         \s
+         p(\bm{ \pi} \mid \mathbf{x}_{1:n}) 
+ \]
+ Where the probability simplex is defined as 
+ \[
+         \bm{\Delta }_k = \left\{ \bm{ \pi}  \in \mathbb{R}^k \Biggm| \pi_j \s\in [0,1]\s 
+                 \text{ and }\s \sum_{j = 1}^k \pi_j = 1 
+         \right\}
+ \]
+ To satisfy the constraint $g(\bm{ \pi})= 1 - \sum_{j=1}^k \pi_j $, we use the Lagrange 
+ multiplier $\lambda$ s.t. the optimisation of the log posterior becomes
+ \begin{align*}
+         \bm{ \hat{\pi}}_{\text{MAP}} &= 
+         \underset{(\bm{ \pi},\lambda)  \s \in \s \mathbb{R}^{k+1} }{\text{argmax}}
+         \s
+         \sum_{j = 1}^k \left(\sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1\right) \log\pi_j+ \lambda g(\bm{ \pi}) 
+ \end{align*} 
+ Here we ignore the normalizing constants which become additive constants in the log 
+ posterior optimization problem.
+ The solution is found where 
+ \begin{align*}
+         \nabla_{\bm{ \pi}}  \log p(\bm{ \pi} \mid \mathbf{x}_{1:n} ) + \lambda g(\bm{ \pi}) &= 0 \\
+         g(\bm{ \pi}) &= 0
+ \end{align*} 
+ The first condition yields
+ \[
+         \left[ \nabla_{\bm{ \pi}} 
+         \log p(\bm{ \pi} \mid \mathbf{x}_{1:n} ) 
+         + \lambda g(\bm{ \pi}) 
+ \right]_\ell
+ \bigg|_{\substack{\pi_\ell = \pi_\ell^*\\ \lambda = \lambda^*}}   = 0 
+         \implies \frac{\sum_{i = 1}^n x_\ell^{(i)} + \alpha_\ell - 1}{\pi^*_\ell}
+          =\lambda^*
+ \]
+ Replacing this result in the second condition, we get
+ \[
+         1 - \sum_{j = 1}^k \frac{\sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1}{\lambda^*} = 0
+         \implies 
+         \lambda^* = n + \sum_{j = 1}^k \alpha_j - 1
+ \]
+ Where we swapped the sum over the $x_j^{(i)}$ and used the fact that  $\mathbf{x}_j$ are 
+ one hot vectors. Thus
+ \[
+         \boxed{(\hat{\bm{ \pi} }_{\text{MAP}} )_j = \pi^*_j = 
+         \frac{\sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1}{n + \alpha_j -  1}\s \in \s [0,1] }
+ \]
+
+
+ \section{Properties of estimators}
+ \subsection{Poisson}
+ Let n trials $X_1,\dots,X_n \overset{\text{iid}}{\sim} \text{Poisson}(\lambda) $ where 
+ $\lambda = \E_x[x]$. The 
+ pmf of the Poisson is
+ \[
+         p(x \mid \lambda) = \frac{\lambda^x}{x!} e^{-\lambda}\s \forall \s x \in \mathbb{N}
+ \]
+ Such that the pmf of $n$ trials should be
+  \[
+         p(x_{1:n} \mid \lambda) \propto \prod_{j = 1}^n p(x_j \mid \lambda)
+ \]
+ \subsubsection{MLE}
+Using the log likelihood, we define the MLE estimation of $\lambda$ as
+ \[
+         \hat{\lambda}_{\text{MLE}} = 
+                 \underset{\lambda \s \in \s \mathbb{R}_{>0}}{\text{argmax} } 
+                \s
+        \sum_{j = 1}^n
+        (x_j \log \lambda - \lambda)
+\]
+Which is found where
+\[
+        \nabla_\lambda \log p(x_{1:n} \mid \lambda ) \bigg|_{\lambda = \lambda^*} = 0
+\]
+That is
+\[
+        \nabla_\lambda \log p(x_{1:n} \mid \lambda) = \lambda^{-1} \sum_{j = 1}^n(x_j - 1)
+\]
+Thus
+\[
+        \boxed{\hat{\lambda}_{\text{MLE}} = \frac{1}{n}\sum_{j = 1}^n x_j  }
+\]
+
+
+\subsubsection{Bias}
+The bias is defined as 
+\[
+        \text{Bias}(\lambda, \mle{\lambda}) \equiv \E_x[\mle{\lambda}] - \lambda
+\]
+The expectation value of the MLE estimator is
+\begin{align*}
+        \E_x[\mle{\lambda}] &= \E_x \left[    \frac{1}{n}\sum_{j=1}^n x'_j \right] \\
+                             &= \frac{1}{n} \sum_{j = 1}^k \E_x[x_j] \\
+                             &= \lambda
+\end{align*} 
+Therefore the \textbf{MLE estimator of a Poisson distribution is an unbiased estimator}.
+
+\subsubsection{Variance}
+The variance of the estimator is
+\[
+        \text{Var}(\mle{\lambda}) \equiv  \E_X[\mle{\lambda}^2] - \E_x^2[\mle{\lambda}]
+\]
+%For the Poisson distribution, 
+%\begin{align*}
+        %\E_x[x^2] &= \sum_{x=0}^\infty x^2\frac{\lambda^{x}}{x!}e^{-\lambda}\\ 
+                  %&= e^{-\lambda} \sum_{x = 0}^\infty 
+%\end{align*}
+We need to evaluate the first term. To do this, we first use the Multinomial 
+theorem to expand $\mle{\lambda}^2$:
+ \[
+         \mle{\lambda}^2 = \frac{1}{n^2} \sum_{k_1 + \dots + k_n = 2} 
+         \binom{2}{k_1,\dots,k_n} x_1^{k_1}\dots x_n^{k_n}
+\]
+Then we use both the linearity of the expectation operator and the fact that 
+the R.V. $X_1,\dots,X_n$ are independent to factorize the expectation of a "cross" 
+product
+ \[
+         \E_x[X_iX_j] = \E_x[X_i]\E_x[X_j], \s\s\s \forall \s\s i,j\s \s \{\text{iid}\} 
+\]
+to get
+\[
+        \E_x[\mle{\lambda}^2] = \frac{1}{n^2} \sum_{k_1 + \dots + k_n = 2} 
+        \binom{2}{k_{1:n}} \E_x[x_1^{k_1}]\dots\E_x[x_n^{k_n}]
+\]
+The sum can be separated into quadratic and linear term, s.t.
+\[
+        \E_x[\mle{\lambda}^2] = \frac{1}{n^2}\left( 
+                n\E_x[x^2] + 2\binom{n}{2}\lambda^2
+        \right) 
+\]
+We used the fact that $\E_x[1] = 1$ and $\E_x[x_j] = \lambda,\s \forall j$. To estimate 
+the quadratic term, we can use a magic trick by adding zero inside 
+the operator argument. Using its linear property 
+ \[
+         \E_x[x^2] = \E_x[x(x - 1) + x] = \E_x[x(x-1)] + \lambda
+\]
+It turns out that
+\begin{align*}
+        \E_x[x(x-1)] &= \sum_{x=0}^\infty x(x-1) \frac{\lambda^x}{x!}e^{-\lambda} \\
+                     &= e^{-\lambda} \sum_{x=2}^\infty \frac{\lambda^x}{(x-2)!} \\
+                     &= e^{-\lambda}  \sum_{x=0}^\infty \frac{\lambda^{x + 2}}{x!} \\
+                     &= \lambda^2
+\end{align*} 
+By noticing the sum is the Taylor series of $e^\lambda$. In the end, we get
+ \[
+         \E_x[\mle{\lambda}^2] = \frac{1}{n^2}\left( 
+         n\lambda + n^2\lambda^2 
+         \right) 
+\]
+Where we expanded the binom coefficient $2\binom{n}{2} = n(n-1)$.
+The variance is thus
+\[
+        \boxed{\text{Var}(\mle{\lambda}) = \frac{\lambda}{n} }
+\]
+
+\subsubsection{Consistency}
+As $n \rightarrow \infty$, the estimator give an unbiased estimate of $\lambda$ with 
+a variance that goes to 0. Thus, the \textbf{estimator is consistent}. 
+
+
+\subsection{Bernoulli}
+Let $X_1,\dots,X_n \overset{\text{iid}}{\sim} \text{Bernoulli(p)} $ and let $n > 10$.
+We consider the estimator 
+ \[
+         \hat{p} \equiv \frac{1}{10}\sum_{i = 1}^{10} X_i 
+\]
+
+
+\subsubsection{Bias}
+We first note that the expected value of a Bernoulli is 
+\[
+        \E_x[x] = p
+\]
+Since $x \in  \{0,1\}$ and $p$ is the probability that  $X = 1$. Therefore,
+\[
+        \text{Bias}(p, \hat{p}) = \frac{1}{10}\sum_{j = 1}^{10} \E_x[x_j] - p = 0
+\]
+Therefore $\hat{p}$ is an unbiased estimator.
+
+
+\subsubsection{Variance}
+The variance is 
+ \begin{align*}
+         \text{Var}(\hat{p}) &= \E_x[\hat{p}^2] - \E_x^2[\hat{p}] \\
+                             &= \frac{1}{100}\left(10 \E_x[x^2] + 90\E_x^2[x]  \right) - p^2 \\
+                             &= \frac{p}{10} + p^2 \left(\frac{90}{100} - 1\right) \\
+                             &= \frac{1}{10}(p - p^2)
+\end{align*} 
+
+
+\subsubsection{Consistency}
+\textbf{This estimator is not consistent since the variance is constant as $n\rightarrow \infty$. }
+
+
+\subsection{Uniform}
+Let $X_1,\dots,X_n \overset{\text{iid}}{\sim }\text{Uniform}(0,\theta) $. The pdf 
+of this distribution is 
+\[
+        p(x_i \mid 0, \theta) = \left\{  
+        \begin{array}{rl}
+                \theta^{-1},& x \in [0,\theta]\\
+                0,& \text{otherwise} 
+        \end{array}
+\right. 
+\]
+for $\theta \in \R_{>0}$. Therefore the likelihood will be proportional to 
+\[
+        p(x_{1:n} \mid 0, \theta ) \propto \left\{ 
+        \begin{array}{r,l}
+                \theta^{-n},& x_{1:n} \in [0, \theta]^k \\
+                0,& \text{otherwise} 
+        \end{array}
+        \right\}
+\]
+
+\subsubsection{MLE}
+Assuming $x \in [0, \theta]$, we can compute the MLE using the log likelihood
+ \[
+         \mle{\theta} = \underset{\theta \s\in \s\R_{>0}}{\text{argmax}} 
+         \s
+         (-1) \log \theta
 \]
 
 
