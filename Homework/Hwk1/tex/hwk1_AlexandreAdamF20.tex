@@ -143,24 +143,24 @@ where $p(\bm{ \pi} ) = p(\bm{ \pi} \mid \bm{\alpha} )$ is the prior for $\bm{ \p
 defined above. For the sake of determining the 
 posterior distribution, we can postpone the derivation of the marginal likelihood.
 %The likelihood is the joint probability of $n$ 
-The likelihood $p(\mathbf{x}_{1:n} \mid \bm{ \pi} )$ is the probability mass function 
-corresponding to $n$ trials of a $k-$sided die throw. We define the vector 
-$\bm{\chi} \equiv \sum_{i=1}^n \mathbf{x}_j$ with the property
-\[
-        \sum_{j = 1}^k \chi_j = n
-\]
-It becomes clear that the likelihood follows the 
-$ \text{Multinomial}(n, \bm{ \pi})  $ distribution. 
-The PMF is given by
-\[
-        p(\mathbf{x}_{1:n} \mid \bm{ \pi} ) =
-\binom{n}{\chi_1,\dots,\chi_k}
-        \prod_{j=1}^k \pi_j^{\chi_j}
-        \propto 
-        \prod_{i = 1}^n
-        \prod_{j=1}^k \pi_j^{x_j^{(i)}}
-\]
-Where it is agreed that $\chi_j = \sum_{i = 1}^n x^{(i)}_j$. 
+%The likelihood $p(\mathbf{x}_{1:n} \mid \bm{ \pi} )$ is the probability mass function 
+%corresponding to $n$ trials of a $k-$sided die throw. We define the vector 
+%$\bm{\chi} \equiv \sum_{i=1}^n \mathbf{x}_j$ with the property
+%\[
+        %\sum_{j = 1}^k \chi_j = n
+%\]
+%It becomes clear that the likelihood follows the 
+%$ \text{Multinomial}(n, \bm{ \pi})  $ distribution. 
+%The PMF is given by
+%\[
+        %p(\mathbf{x}_{1:n} \mid \bm{ \pi} ) =
+%\binom{n}{\chi_1,\dots,\chi_k}
+        %\prod_{j=1}^k \pi_j^{\chi_j}
+        %\propto 
+        %\prod_{i = 1}^n
+        %\prod_{j=1}^k \pi_j^{x_j^{(i)}}
+%\]
+%Where it is agreed that $\chi_j = \sum_{i = 1}^n x^{(i)}_j$. 
 Therefore, the posterior must be
 \[
         p(\bm{ \pi} \mid \mathbf{x}_{1:n} ) \propto 
@@ -196,8 +196,8 @@ defined above, this is
 \[
          p(\mathbf{x}_{1:n}) = \int_{\bm{ \Delta_k}} 
          d^{(k)}\bm{ \pi} 
-         \binom{n}{\chi_1,\dots,\chi_k}
-       \prod_{j = 1}^k \pi_j^{\chi_j}
+         %\binom{n}{\chi_1,\dots,\chi_k}
+         \prod_{j = 1}^k \pi_j^{\sum_{i =1}^n x_j^{(i)}}
         \left( 
          \frac{\Gamma ( \sum _{\ell = 1}^k \alpha_\ell) }{\prod_{\ell=1}^k \Gamma(\alpha_\ell)} 
          \prod_{\ell = 1}^k \pi_\ell^{\alpha_\ell - 1}
@@ -208,23 +208,38 @@ defined as an affine plane in an Euclidian space which is supported by
 a set of orthonormal vectors.
 %The crucial point is that the base space is an Euclidian space 
 %spaned by orthonormal vectors.
-Thus, our task is to evaluate $k$ identical integrals of the form
+%Thus, our task is to evaluate $k$ identical integrals of the form
+%\[
+        %\int_0^1 d\pi_j \pi_j^{\sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1}
+        %%= 
+        %%\left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right)^{-1},
+        %%\s\s\s
+        %%\left\{ \alpha_j > 0 \right\}
+%\]
+To evaluate this, we use the fact that the marginalized conjugate prior must sum to 1
 \[
-        \int_0^1 d\pi_j \pi_j^{\sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1}
-        = 
-        \left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right)^{-1},
-        \s\s\s
-        \left\{ \alpha_j > 0 \right\}
+        \frac{\Gamma ( \sum _{\ell = 1}^k \alpha_\ell) }{\prod_{\ell=1}^k \Gamma(\alpha_\ell)} 
+        \int_{\Delta_k} d^{(k)}\bm{ \pi} \prod_{j =1}^k \pi_j^{\alpha_j - 1} = 1
 \]
-Thus
+Thus, since both integral have the same form we assume
 \[
-        p(\mathbf{x}_{1:n}) = 
-         \binom{n}{\chi_1,\dots,\chi_k}
+\int_{\Delta_k} d^{(k)}\bm{ \pi}  \pi_j^{\sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1}
+        =
+        \frac{\prod_{j = 1}^k \Gamma(\sum_{i = 1}^n x_j^{(i)} + \alpha_j)}{
+        \Gamma\left(\sum_{j = 1}^k \left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right) \right)}
+\]
+We then get
+\[
+        \boxed{p(\mathbf{x}_{1:n}) = 
+         %\binom{n}{\chi_1,\dots,\chi_k}
          \frac{\Gamma ( \sum _{\ell = 1}^k \alpha_\ell) }{\prod_{\ell=1}^k \Gamma(\alpha_\ell)} 
- \prod_{j = 1}^k\left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right)^{-1}
-
-
+ %\prod_{j = 1}^k\left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right)^{-1}
+        \frac{\prod_{j = 1}^k \Gamma(\sum_{i = 1}^n x_j^{(i)} + \alpha_j)}{
+        \Gamma\left(\sum_{j = 1}^k \left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right) \right)}
+}
 \]
+We notice that the first factor will cancel the one coming from the numertor in the 
+posterior, and the second factor is the updated normalization factor of the Dirichlet.
  \subsection{$\hat{\bm{\pi}}_{\text{MAP}}  $}
  The maximum \textit{a posteriori} of the Multinomial distribution is
  \[
@@ -500,28 +515,46 @@ sufficient statistic by the Fisher-Neyman theorem.
 \subsubsection{Bias}
 The bias of this estimator is 
 \[
-        \text{Bias}(\theta, \mle{\theta}) = \E_x[\mle{\theta}] - \theta 
-         = \frac{1}{\theta}\int_0^\theta \max \mathbf{X} dx - \theta
+        \text{Bias}(\theta, \mle{\theta}) = \E_c[\mle{\theta}] - \theta 
 \]
-Integrating $\max \mathbf{X}$ over all possible values, we get (in absolute value)
+Where $c = \max \mathbf{X}$. To compute the expectation value of the MLE estimator, 
+we must first compute the pdf with respect to $c$. We notice that the likelihood of 
+the maximum in the set $\mathbf{X}$ to bge smaller than c is
 \[
-        \boxed{\norm{\text{Bias}(\theta, \mle{\theta})} = \frac{\theta}{2} }
+        p(\max \mathbf{X} < c \mid \theta) = \prod_{i = 1}^n \left( \frac{c}{n} \right) 
+         = \left( \frac{c}{n} \right)^n 
+\]
+from the hint. To get the pdf, we derive this expression with respect to $c$ (the 
+likelihood over the region $x_i \in [0, c]$ is an integral, so we expect the pdf 
+to be the derivative of this integral):
+ \[
+         p(\max \mathbf{X} = c \mid \theta ) = n \frac{c^{n - 1}}{\theta^n}
+\]
+Therefore, 
+\[
+        \E_c[\mle{\theta}] = n\int_0^\theta c\frac{c^{n  - 1}}{\theta^n}dc
+        = \frac{n}{n + 1}\theta
+\]
+And we get
+\[
+        \boxed{  \norm{\text{Bias}(\theta, \mle{\theta})} =  \frac{\theta}{n  + 1}}
 \]
 
 
 \subsubsection{Variance}
 The variance is 
 \[
-\text{Var}(\mle{\theta}) = \E_x[\mle{\theta}^2] - \E_x^2[\mle{\theta}] 
+\text{Var}(\mle{\theta}) = \E_c[\mle{\theta}^2] - \E_c^2[\mle{\theta}] 
 \]
-Computing the integral for all the possible values for $(\max \mathbf{X})^2$, we get 
+Thus
 \[
         \boxed{\text{Var}(\mle{\theta}) = 
-        \frac{\theta^2}{3} - \frac{\theta^2}{4} = \frac{\theta^2}{12} }
+\theta^2 \left( \frac{n}{n + 2} - \frac{n^2}{(n + 1)^2} \right)  \right)} 
 \]
 
 \subsubsection{Consistency }
-\textbf{This estimator is not consistent.}
+\textbf{The estimator is consistent because the bias and the variance go to zero as 
+$n\rightarrow \infty$} 
 
 
 \subsection{Gaussian}
@@ -572,45 +605,90 @@ The bias for the normal variance MLE $\mle{\sigma}^2$ is
  \[
          \text{Bias}(\sigma^2, \mle{\sigma}^2) = \E_x[\mle{\sigma}^2] - \sigma^2 
 \]
-Where
-\[
-        \E_x[\mle{\sigma}^2] = \frac{1}{n\sigma \sqrt{2\pi}}\sum_{i = 1}^n 
-        \int_{-\infty}^\infty 
-        (x_i - \bar{X})^2 \exp \left( -\frac{1}{2} \frac{(x - \mu)^2}{\sigma^2} \right) 
-        dx
-\]
-We used the linearity of the integral to swap the sum operator. We define some 
-useful properties of the gaussian integral which we do not derive. They 
-correspond to the non-central moments of the gaussian.
-\begin{align*}
-        \frac{1}{\sqrt{2\pi}} \exp \left( - \frac{1}{2} x^2 \right) &= \varphi(x) \\
-        \int_{-\infty}^\infty \varphi \left(  \frac{x - \mu}{\sigma } \right) dx &= \sigma  \\
-        \int_{-\infty}^\infty  x \varphi \left( \frac{x - \mu}{\sigma} \right) dx &= \mu \sigma \\
-        \int_{-\infty}^\infty x^2 \varphi \left( \frac{x - \mu}{\sigma^2} \right)dx &=
-        \sigma\mu^2 + \sigma^3 
-\end{align*} 
 Thus,
 \begin{align*}
-        \E_x[\mle{\sigma}^2] &= \frac{1}{n\sigma }
-        \sum_{i = 1}^n \int_{-\infty}^\infty (x_i^2 - 2x_i \bar{X} + \bar{X}^2)
-                \varphi \left( \frac{x - \mu}{\sigma} \right) dx \\
-                             &= \frac{1}{n\sigma} \sum_{i = 1}^n 
-                             \left(\sigma \mu^2 + \sigma^3 - 2\bar{X}\mu\sigma + 
-                             \bar{X}\sigma  \right)  \\
-        &= \mu^2 + \sigma^2 - 2\bar{X}\mu + \bar{X}
+        \text{Bias}(\sigma^2, \mle{\sigma}^2 &= 
+        \frac{1}{n}\sum_{i = 1}^n (\E_x[x_i^2] - 2 \E_x[x_i]\E_x[\bar{X}] + \E_x[\bar{X}^2])
 \end{align*} 
+With the definition of the variance, we can replace $\E_X[x^2] = \sigma^2 + \mu^2$.
 Thus,
+ \begin{align*}
+         \text{Bias}(\sigma^2, \mle{\sigma}^2) &= 
+        \frac{1}{n}\sum_{i = 1}^n (\sigma^2 + \mu^2 - 2 \mu^2 + \E_x[\bar{X}^2])
+\end{align*} 
+Expanding the square of the mean
 \[
-        \boxed{\text{Bias}(\sigma, \mle{\sigma}^2) = (\mu - \bar{X})^2 }
+\bar{X}^2 = \frac{1}{n^2}\sum_{i = 1}^n
+\left(  x_i^2 + 2\sum_{j > i}x_ix_j
+\right)
 \]
+Thus
+\[
+        \E_x[\bar{X}^2] = \frac{1}{n}\sigma^2 + \frac{1}{n}\mu^2 + \frac{(n - 1)}{n}\mu^2 =
+                \frac{1}{n}\sigma^2 + \mu^2
+\]
+Finally,
+\[
+        \norm{\text{Bias}(\sigma^2, \mle{\sigma}^2)} = \frac{\sigma^2}{n} 
+\]
+%\[
+        %\E_x[\mle{\sigma}^2] = \frac{1}{n\sigma \sqrt{2\pi}}\sum_{i = 1}^n 
+        %\int_{-\infty}^\infty 
+        %(x_i - \bar{X})^2 \exp \left( -\frac{1}{2} \frac{(x - \mu)^2}{\sigma^2} \right) 
+        %dx
+%\]
+%We used the linearity of the integral to swap the sum operator. We define some 
+%useful properties of the gaussian integral which we do not derive. They 
+%correspond to the non-central moments of the gaussian.
+%\begin{align*}
+        %\frac{1}{n\sqrt{2\pi}} \exp \left( - \frac{1}{2} x^2 \right) &= \varphi(x) \\
+        %\int_{-\infty}^\infty \varphi \left(  \frac{x - \mu}{\sigma } \right) dx &= 1  \\
+        %\int_{-\infty}^\infty  x \varphi \left( \frac{x - \mu}{\sigma} \right) dx &= \mu \\
+        %\int_{-\infty}^\infty x^2 \varphi \left( \frac{x - \mu}{\sigma^2} \right)dx &=
+        %\mu^2 + \sigma^2 
+%\end{align*} 
+%Thus,
+%\begin{align*}
+        %\E_x[\mle{\sigma}^2] &= \frac{1}{n}
+        %\sum_{i = 1}^n \int_{-\infty}^\infty
+        %\left(  x_i^2 -
+        %\frac{2}{n} x_i \sum_{j = 1}^n x_j + \frac{1}{n^2} \left( \sum_{j = 1}^n x_j \right)^2 
+                %\right)
+                %\varphi \left( \frac{x - \mu}{\sigma} \right) dx \\
+        %&= \frac{1}{n}\sum_{i = 1}^n \int_{-\infty}^\infty 
+        %\left( 
+                %x^2 - 2nx^2 + nx^2 + \frac{n - 1}{n}x^2
+        %\right) 
+        %\varphi \left( \frac{x - \mu}{\sigma} \right) dx
+%\end{align*} 
 
 
 \subsubsection{Variance}
-The $\mle{\sigma}^2$ variance is 
+%The $\mle{\sigma}^2$ variance is 
+%\[
+        %\text{Var}(\mle{\sigma}^2) = \E_x[\mle{\sigma}^4] - \E_x^2[\mle{\sigma}^2] 
+%\]
+We can use the chi-squared distribution for which we know the variance
 \[
-        \text{Var}(\mle{\sigma}^2) = \E_x[\mle{\sigma}^4] - \E_x^2[\mle{\sigma}^2] 
+        \text{Var}(\chi^2_{n -1}) = 2(n - 1)
 \]
-Using the gaussian integral properties, we can solve this system using only the operators 
-$\E_x[x] = \mu$ and $\E_x[x^2] = \mu^2 + \sigma^2$.
+Knowing that
+\[
+        \chi^2_{n -1} \equiv \frac{1}{\sigma^2}\sum_{i = 1}^n (x_i -\bar{X})^2 =
+        \frac{n\mle{\sigma}^2}{\sigma^2}
+\]
+%Thus, 
+%\[
+        %\E_x[\mle{\sigma}^4] = \text{Var}(\mle{\sigma}^2) + \E_x^2[\mle{\sigma}^2] 
+%\]
+Thus
+\[
+\text{Var}(\mle{\sigma}^2) = \text{Var}\left( \frac{\chi^2_{n -1}\sigma^2}{n} \right)   
+= \frac{2\sigma^4(n - 1)}{n^2}
+\]
+
+\subsubsection{Consistency}
+Both the the variance and the bias go to 0 as $n \rightarrow 0$, so the \textbf{estimator of 
+the variance is consistent.}
 
 \end{document}
