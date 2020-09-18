@@ -25,6 +25,7 @@
 \renewcommand\thesubsubsection{\Roman{subsubsection}}
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert_2}
 \newcommand{\mle}[1]{\hat{#1}_{\text{MLE}}}
+\newcommand{\set}[1]{\{#1\}}
 
 \begin{document}
 
@@ -404,7 +405,7 @@ Since $x \in  \{0,1\}$ and $p$ is the probability that  $X = 1$. Therefore,
 \[
         \text{Bias}(p, \hat{p}) = \frac{1}{10}\sum_{j = 1}^{10} \E_x[x_j] - p = 0
 \]
-Therefore $\hat{p}$ is an unbiased estimator.
+$\hat{p}$ is an unbiased estimator.
 
 
 \subsubsection{Variance}
@@ -425,30 +426,191 @@ The variance is
 Let $X_1,\dots,X_n \overset{\text{iid}}{\sim }\text{Uniform}(0,\theta) $. The pdf 
 of this distribution is 
 \[
-        p(x_i \mid 0, \theta) = \left\{  
+        p(x_i \mid \theta) = \left\{  
         \begin{array}{rl}
                 \theta^{-1},& x \in [0,\theta]\\
                 0,& \text{otherwise} 
         \end{array}
 \right. 
+= \frac{1}{\theta} \bm{ 1}_{\{0 \le x_i \le \theta \}} 
 \]
-for $\theta \in \R_{>0}$. Therefore the likelihood will be proportional to 
+for $\theta \in \R_{>0}$. We used the indicator function 
 \[
-        p(x_{1:n} \mid 0, \theta ) \propto \left\{ 
-        \begin{array}{r,l}
-                \theta^{-n},& x_{1:n} \in [0, \theta]^k \\
-                0,& \text{otherwise} 
+        \bm{ 1}_A(x) \equiv \left\{ 
+        \begin{array}{lr}
+                1,& x \in A \\
+                0,& x \not\in A
         \end{array}
-        \right\}
+        \right. 
 \]
+%From this we can see that the probability of $x_i$ to 
+%fall in the interval  $[0, c],\s c \le \theta$ is 
+ %\[
+         %p(x_i < c \mid \theta) = \frac{c}{\theta}
+%\]
+
+
 
 \subsubsection{MLE}
-Assuming $x \in [0, \theta]$, we can compute the MLE using the log likelihood
- \[
-         \mle{\theta} = \underset{\theta \s\in \s\R_{>0}}{\text{argmax}} 
-         \s
-         (-1) \log \theta
+Given $n$ samples, we want an estimator of the maximum possible value of $\mathbf{X}$.
+The MLE is
+\[
+        \mle{\theta} = \underset{\theta \s \in \s \R_{>0}}{\text{argmax}}
+        \s
+        \frac{1}{\theta^n}\prod_{i = 1}^n \bm{ 1}_{\set{0 \le x_i \le \theta}} 
+\]
+Where we used the fact that the data is iid. We can see that the product only depends 
+on the boundary cases of the dataset, that is
+\[
+        \mle{\theta} = \underset{\theta \s \in \s \R_{>0}}{\text{argmax}}
+        \s
+        \frac{1}{\theta^n}  \bm{ 1}_{\set{0 \le \min \mathbf{X}}} 
+        \bm{ 1}_{\set{\max \mathbf{X} \le \theta}}  
+\]
+One can see that $\theta$ should be as low as possible to maximize $\theta^{-n}$, yet 
+not too low s.t. it make the second indicator function 0. The obvious choice is therefore 
+\[
+        \boxed{\mle{\theta} = \max \mathbf{X}}
+\]
+We show that $T(\theta) = \mle{\theta}$ is a sufficient statistic.
+To show this, we user the Fisher-Neyman theorem which garantees that the 
+statistic is sufficient if
+the probability density can be factorized as 
+$p(\mathbf{X}) = h(\mathbf{X}) g(\theta, T(\theta))$. First, we use 
+the fact that the data is iid:
+\[
+        p(\mathbf{X}) = \prod_{i = 1}^n p(x_i)
+\]
+Then replacing by the Uniform distribution
+\[
+        p(\mathbf{X}) = \prod_{i = 1}^n \frac{1}{\theta}\bm{ 1}_{\{0 \le x_i \le \theta\}} 
+\]
+For the probability to be non-zero, only the boundary cases are important. That is
+\[
+p(\mathbf{X}) = \frac{1}{\theta^n} 
+\bm{ 1}_{\{0 \le \min \mathbf{X} \}} 
+\bm{ 1}_{\{\max \mathbf{X}\le \theta\}} 
+= h(\mathbf{X}) \frac{1}{\theta^n} \bm{ 1}_{\{T(\theta) \le \theta\}} 
+\]
+We identify $h(\mathbf{X}) = \bm{ 1}_{\{0 \le \min\mathbf{X}\}} $ and the rest with the 
+function $g(\theta, T(\theta))$. Thus we have shown  $T(\theta)$ is a 
+sufficient statistic by the Fisher-Neyman theorem.
+
+
+\subsubsection{Bias}
+The bias of this estimator is 
+\[
+        \text{Bias}(\theta, \mle{\theta}) = \E_x[\mle{\theta}] - \theta 
+         = \frac{1}{\theta}\int_0^\theta \max \mathbf{X} dx - \theta
+\]
+Integrating $\max \mathbf{X}$ over all possible values, we get (in absolute value)
+\[
+        \boxed{\norm{\text{Bias}(\theta, \mle{\theta})} = \frac{\theta}{2} }
 \]
 
+
+\subsubsection{Variance}
+The variance is 
+\[
+\text{Var}(\mle{\theta}) = \E_x[\mle{\theta}^2] - \E_x^2[\mle{\theta}] 
+\]
+Computing the integral for all the possible values for $(\max \mathbf{X})^2$, we get 
+\[
+        \boxed{\text{Var}(\mle{\theta}) = 
+        \frac{\theta^2}{3} - \frac{\theta^2}{4} = \frac{\theta^2}{12} }
+\]
+
+\subsubsection{Consistency }
+\textbf{This estimator is not consistent.}
+
+
+\subsection{Gaussian}
+Let $X_1,\dots,X_n \overset{\text{iid}}{\sim} \mathcal{N}(\mu,\sigma^2),\s  \s
+\sigma, \mu \in \R $. We define the mean as $\bar{X} = \frac{1}{n}\sum_{i =1}^n x_i$.
+
+\subsubsection{MLE}
+The likelihood, using the fact that the data is iid, is
+\[
+        p(\mathbf{X} \mid \mu,\sigma) = \frac{1}{ (\sigma \sqrt{2\pi})^n} 
+        \prod_{i = 1}^n 
+        \exp\left( -\frac{1}{2}\frac{(x_i - \mu)^2}{\sigma^2} \right) 
+
+\]
+The MLE for $\mu$ and $\sigma^2$ can be derived from the log likelihood
+ \[
+         \mle{\theta} = (\mle{\mu}, \mle{\sigma}^2) = 
+         \underset{ (\mu, \sigma^2) \s \in \s \R^2}{\text{argmax}} 
+                 \s
+                 -\frac{n}{2} \log \sigma^2
+                 -\frac{1}{2}\sum_{i = 1}^n \frac{(x_i - \mu)^2}{\sigma^2}
+\]
+The solution is found where
+\[
+        \nabla_\theta \log p(\mathbf{X} \mid \theta) = 0
+\]
+That is
+\[
+        \partial_\mu \implies  \sum_{i = 1}^n (x_i - \hat{\mu}) = 0
+\]
+From which we find
+\[
+        \hat{\mu} = \frac{1}{n}\sum_{i = 1}^n x_i = \bar{X}
+\]
+Also, we have
+\[
+        \partial_{\sigma^2} \implies -\frac{n}{2\hat{\sigma}^2} + 
+        \frac{1}{2}\sum_{i =1}^n \frac{(x_i - \bar{X})^2}{\hat{\sigma}^4} = 0
+\]
+Thus
+\[
+        \hat{\sigma}^2 = \frac{1}{n}\sum_{i = 1}^n (x_i - \bar{X})^2 
+\]
+
+
+\subsubsection{Bias}
+The bias for the normal variance MLE $\mle{\sigma}^2$ is
+ \[
+         \text{Bias}(\sigma^2, \mle{\sigma}^2) = \E_x[\mle{\sigma}^2] - \sigma^2 
+\]
+Where
+\[
+        \E_x[\mle{\sigma}^2] = \frac{1}{n\sigma \sqrt{2\pi}}\sum_{i = 1}^n 
+        \int_{-\infty}^\infty 
+        (x_i - \bar{X})^2 \exp \left( -\frac{1}{2} \frac{(x - \mu)^2}{\sigma^2} \right) 
+        dx
+\]
+We used the linearity of the integral to swap the sum operator. We define some 
+useful properties of the gaussian integral which we do not derive. They 
+correspond to the non-central moments of the gaussian.
+\begin{align*}
+        \frac{1}{\sqrt{2\pi}} \exp \left( - \frac{1}{2} x^2 \right) &= \varphi(x) \\
+        \int_{-\infty}^\infty \varphi \left(  \frac{x - \mu}{\sigma } \right) dx &= \sigma  \\
+        \int_{-\infty}^\infty  x \varphi \left( \frac{x - \mu}{\sigma} \right) dx &= \mu \sigma \\
+        \int_{-\infty}^\infty x^2 \varphi \left( \frac{x - \mu}{\sigma^2} \right)dx &=
+        \sigma\mu^2 + \sigma^3 
+\end{align*} 
+Thus,
+\begin{align*}
+        \E_x[\mle{\sigma}^2] &= \frac{1}{n\sigma }
+        \sum_{i = 1}^n \int_{-\infty}^\infty (x_i^2 - 2x_i \bar{X} + \bar{X}^2)
+                \varphi \left( \frac{x - \mu}{\sigma} \right) dx \\
+                             &= \frac{1}{n\sigma} \sum_{i = 1}^n 
+                             \left(\sigma \mu^2 + \sigma^3 - 2\bar{X}\mu\sigma + 
+                             \bar{X}\sigma  \right)  \\
+        &= \mu^2 + \sigma^2 - 2\bar{X}\mu + \bar{X}
+\end{align*} 
+Thus,
+\[
+        \boxed{\text{Bias}(\sigma, \mle{\sigma}^2) = (\mu - \bar{X})^2 }
+\]
+
+
+\subsubsection{Variance}
+The $\mle{\sigma}^2$ variance is 
+\[
+        \text{Var}(\mle{\sigma}^2) = \E_x[\mle{\sigma}^4] - \E_x^2[\mle{\sigma}^2] 
+\]
+Using the gaussian integral properties, we can solve this system using only the operators 
+$\E_x[x] = \mu$ and $\E_x[x^2] = \mu^2 + \sigma^2$.
 
 \end{document}
