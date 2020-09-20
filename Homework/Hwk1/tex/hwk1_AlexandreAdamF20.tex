@@ -186,7 +186,7 @@ $\alpha_j'= \alpha_j + \sum_{i = 1}^n x_j^{(i)} $}.
 \subsection{Marginal Likelihood}
  The marginal likelihood $p(\mathbf{x}_{1:n})$ 
 is a normalizing constant defined as the 
-integral of the numerator over all instantiation of $\bm{ \pi} $
+integral of the numerator (in the Baye's rule) over all instantiation of $\bm{ \pi} $
 \[
         p(\mathbf{x}_{1:n}) = \int_{\bm{ \Delta_k}} 
         p(\mathbf{x}_{1:n} \mid \bm{ \pi})  p(\bm{ \pi} )d^{(k)}\bm{ \pi}  
@@ -238,14 +238,15 @@ We then get
         \Gamma\left(\sum_{j = 1}^k \left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j \right) \right)}
 }
 \]
-We notice that the first factor will cancel the one coming from the numertor in the 
+We notice that the first factor will cancel the one coming from the numerator in the 
 posterior, and the second factor is the updated normalization factor of the Dirichlet.
  \subsection{$\hat{\bm{\pi}}_{\text{MAP}}  $}
- The maximum \textit{a posteriori} of the Multinomial distribution is
+ The maximum \textit{a posteriori} of the Multinomial distribution can be written in 
+ term of the log posterior 
  \[
          \bm{ \hat{\pi}}_{\text{MAP}} \equiv \underset{\bm{ \pi}  \s \in \s \bm{ \Delta}_k }{\text{argmax}}
          \s
-         p(\bm{ \pi} \mid \mathbf{x}_{1:n}) 
+         \log p(\bm{ \pi} \mid \mathbf{x}_{1:n}) 
  \]
  Where the probability simplex is defined as 
  \[
@@ -253,15 +254,21 @@ posterior, and the second factor is the updated normalization factor of the Diri
                  \text{ and }\s \sum_{j = 1}^k \pi_j = 1 
          \right\}
  \]
- To satisfy the constraint $g(\bm{ \pi})= 1 - \sum_{j=1}^k \pi_j $, we use the Lagrange 
- multiplier $\lambda$ s.t. the optimisation of the log posterior becomes
+ We define the constraint as $g(\bm{ \pi})= 1 - \sum_{j=1}^k \pi_j $.
+ We notice that 
+ \[
+         \log p(\bm{ \pi} \mid \mathbf{x}_{1:n}) = C + \sum_{j = 1}^k 
+         \left( \sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1 \right)\log \pi_j 
+ \]
+where $C$ is the normalization constant. 
+The optimisation of the log posterior becomes
  \begin{align*}
          \bm{ \hat{\pi}}_{\text{MAP}} &= 
          \underset{(\bm{ \pi},\lambda)  \s \in \s \mathbb{R}^{k+1} }{\text{argmax}}
          \s
          \sum_{j = 1}^k \left(\sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1\right) \log\pi_j+ \lambda g(\bm{ \pi}) 
  \end{align*} 
- Here we ignore the normalizing constants which become additive constants in the log 
+ Here we ignore the normalizing constants which become an additive constants in the log 
  posterior optimization problem.
  The solution is found where 
  \begin{align*}
@@ -282,14 +289,25 @@ posterior, and the second factor is the updated normalization factor of the Diri
  \[
          1 - \sum_{j = 1}^k \frac{\sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1}{\lambda^*} = 0
          \implies 
-         \lambda^* = n + \sum_{j = 1}^k \alpha_j - 1
+         \lambda^* = n + \sum_{j = 1}^k \alpha_j - k
  \]
  Where we swapped the sum over the $x_j^{(i)}$ and used the fact that  $\mathbf{x}_j$ are 
  one hot vectors. Thus
  \[
          \boxed{(\hat{\bm{ \pi} }_{\text{MAP}} )_j = \pi^*_j = 
-         \frac{\sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1}{n + \alpha_j -  1}\s \in \s [0,1] }
+         \frac{\sum_{i = 1}^n x_j^{(i)} + \alpha_j - 1}{n + \sum_{j = 1}^k\alpha_j -  k}\s \in \s [0,1] }
  \]
+ The maximum likelihood estimator is, on the other hand,
+ \[
+         (\mle{\bm{ \pi} } )_j = \frac{\sum_{j = 1}^n x_j^{(i)}}{n}
+ \]
+ In the regime of extremely large $k$, knowing that  $\alpha_j > 1 \s \forall \s j$, we 
+ expect the sum $\sum_{j = 1}^k\alpha_j - k \gg 1$ to become non-negligible. In turns, 
+ this means that we expect
+  \[
+          \boxed{ (\bm{ \hat{\pi}}_{\text{MAP}}  )_j < (\mle{\bm{ \pi}} )_j}
+ \]
+
 
 
  \section{Properties of estimators}
