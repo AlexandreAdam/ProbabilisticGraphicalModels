@@ -7,13 +7,15 @@
 \usepackage{amsthm}
 \usepackage{fancyhdr}
 \usepackage{amssymb}
+\usepackage{centernot}
+
 
 \DeclareMathOperator{\E}{\mathbb{E}}
 \DeclareMathOperator{\R}{\mathbb{R}}
 
 \pagestyle{fancy}
-\rhead{Alexandre Adam \\ 20090755}
-\lhead{IFT6269 ― Probabilistic Graphical Models \\ Simone Lacoste-Julien}
+\rhead{Alexandre Adam \\ p1162403}
+\lhead{IFT6269: Probabilistic Graphical Models \\ Simone Lacoste-Julien}
 \chead{Homework 1}
 \rfoot{\today}
 \cfoot{\thepage}
@@ -27,7 +29,12 @@
 \newcommand{\mle}[1]{\hat{#1}_{\text{MLE}}}
 \newcommand{\set}[1]{\{#1\}}
 
+\title{Homework 1}
+\author{by: Alexandre Adam \\ Collaborators: Olivier Vincent, \\ Ronan Legin}
+
+
 \begin{document}
+\maketitle
 
 \section{Probability and independence}
 \subsection{Decomposition}
@@ -86,27 +93,40 @@ We aim to validate
 \begin{equation}
         (X \perp Y \mid Z) \s \text{and} \s (X \perp Y \mid W) \implies (X \perp Y \mid Z,W)
 \end{equation}
-\textit{Counter example}. We consider the following R.V.
-\begin{enumerate}
-        \item X: Person A arrive late for diner;
-        \item Y: Person B arrive late for diner;
-        \item W: They come from the same city;
-        \item Z: They work in the same city.
-\end{enumerate}
-For this situation, we see that X and Y are conditionally independent when 
-given either W or Z. If we know they are from the same city, then they might work 
-in different cities and take different route home. Thus knowing person A was late doesn't inform 
-us on the probability of person B to arrive late. \par
-A similar argument can be made for  $(X \perp Y \mid Z)$. \par
-Thus the LHS of the proposition is true, yet the RHS is clearly false in our case. 
-Assuming we were given that W and Z are true, then we are given the geolocalisation 
-of person A and B.
-If we were given that 
-person A would be late for diner, then we'd be able to make a good guess that person B would 
-be late as well (they would both be impacted by the same traffic jam or whatnot).
-Thus the proposition is false.
+\textit{Counter example}. We consider the following situation: let 
+$\Omega$ be a set of three identical elements 
+$\Omega = \{1, 1, 1\}$. Let $X, Y, W, Z$ be the action of removing 
+an element or not, each independently distributed, but not necessarily 
+identically distributed. Since the elements of $\Omega$ are identical, then 
+any three R.V. are mutually and conditionally independent. It is not possible,
+however, to say the same about four R.V. since it is possible for 3 R.V. to change 
+the distribution of the forth if the 3 given R.V. all choose to pick an element from the 
+set. The probability distribution of the forth R.V. collapses into a delta function since 
+only one choice remains. Therefore,
+\[
+        (X \perp Y \mid Z) \s \text{and} \s (X \perp Y \mid Z) 
+        \centernot\implies (X \perp Y \mid Z,W) 
+\]
+%\begin{enumerate}
+        %\item X: Person A arrive late for diner;
+        %\item Y: Person B arrive late for diner;
+        %\item W: They come from the same city;
+        %\item Z: They work in the same city.
+%\end{enumerate}
+%For this situation, we see that X and Y are conditionally independent when 
+%given either W or Z. If we know they are from the same city, then they might work 
+%in different cities and take different route home. Thus knowing person A was late doesn't inform 
+%us on the probability of person B to arrive late. \par
+%A similar argument can be made for  $(X \perp Y \mid Z)$. \par
+%Thus the LHS of the proposition is true, yet the RHS is clearly false in our case. 
+%Assuming we were given that W and Z are true, then we are given the geolocalisation 
+%of person A and B.
+%If we were given that 
+%person A would be late for diner, then we'd be able to make a good guess that person B would 
+%be late as well (they would both be impacted by the same traffic jam or whatnot).
+%Thus the proposition is false.
 
-\section{Bayesian inferance and MAP}
+\section{Bayesian inference and MAP}
 Let $\mathbf{X}_1, \dots , \mathbf{X}_n \bm{\mid} \bm{\pi} \overset{\text{iid} }{\sim} 
 \text{Multinomial} (1, \bm{ \pi} )$ on k element. The values are sampled from a set of cardinality 
 2, that is $x^{(i)}_j \in \left\{ 0, 1 \right\}$. Each R.V. has only one non-zero 
@@ -186,7 +206,7 @@ $\alpha_j'= \alpha_j + \sum_{i = 1}^n x_j^{(i)} $}.
 \subsection{Marginal Likelihood}
  The marginal likelihood $p(\mathbf{x}_{1:n})$ 
 is a normalizing constant defined as the 
-integral of the numerator (in the Baye's rule) over all instantiation of $\bm{ \pi} $
+integral of the numerator (in the Bayes rule) over all instantiation of $\bm{ \pi} $
 \[
         p(\mathbf{x}_{1:n}) = \int_{\bm{ \Delta_k}} 
         p(\mathbf{x}_{1:n} \mid \bm{ \pi})  p(\bm{ \pi} )d^{(k)}\bm{ \pi}  
@@ -204,7 +224,7 @@ defined above, this is
         \right) 
 \]
 The $\pi_j$'s are independent variables since the simplex $\bm{ \Delta}_k $ is crucially 
-defined as an affine plane in an Euclidian space which is supported by 
+defined as an affine plane in an Euclidean space which is supported by 
 a set of orthonormal vectors.
 %The crucial point is that the base space is an Euclidian space 
 %spaned by orthonormal vectors.
@@ -506,7 +526,7 @@ not too low s.t. it make the second indicator function 0. The obvious choice is 
         \boxed{\mle{\theta} = \max \mathbf{X}}
 \]
 We show that $T(\theta) = \mle{\theta}$ is a sufficient statistic.
-To show this, we user the Fisher-Neyman theorem which garantees that the 
+To show this, we user the Fisher-Neyman theorem which guarantees that the 
 statistic is sufficient if
 the probability density can be factorized as 
 $p(\mathbf{X}) = h(\mathbf{X}) g(\theta, T(\theta))$. First, we use 
@@ -537,7 +557,7 @@ The bias of this estimator is
 \]
 Where $c = \max \mathbf{X}$. To compute the expectation value of the MLE estimator, 
 we must first compute the pdf with respect to $c$. We notice that the likelihood of 
-the maximum in the set $\mathbf{X}$ to bge smaller than c is
+the maximum in the set $\mathbf{X}$ to be smaller than c is
 \[
         p(\max \mathbf{X} < c \mid \theta) = \prod_{i = 1}^n \left( \frac{c}{n} \right) 
          = \left( \frac{c}{n} \right)^n 
@@ -626,13 +646,14 @@ The bias for the normal variance MLE $\mle{\sigma}^2$ is
 Thus,
 \begin{align*}
         \text{Bias}(\sigma^2, \mle{\sigma}^2) &= 
-        \frac{1}{n}\sum_{i = 1}^n (\E_x[x_i^2] - 2 \E_x[x_i]\E_x[\bar{X}] + \E_x[\bar{X}^2])
+        \frac{1}{n}\sum_{i = 1}^n (\E_x[x_i^2] - 2 \E_x[x_i]\E_x[\bar{X}] + \E_x[\bar{X}^2]) 
+        - \sigma^2
 \end{align*} 
 With the definition of the variance, we can replace $\E_x[x^2] = \sigma^2 + \mu^2$.
 Thus,
  \begin{align*}
          \text{Bias}(\sigma^2, \mle{\sigma}^2) &= 
-        \frac{1}{n}\sum_{i = 1}^n (\sigma^2 + \mu^2 - 2 \mu^2 + \E_x[\bar{X}^2])
+        \frac{1}{n}\sum_{i = 1}^n (\sigma^2 + \mu^2 - 2 \mu^2 + \E_x[\bar{X}^2]) - \sigma^2
 \end{align*} 
 Expanding the square of the mean
 \[
