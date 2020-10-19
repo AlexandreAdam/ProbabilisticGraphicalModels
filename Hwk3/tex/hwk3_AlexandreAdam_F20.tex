@@ -197,7 +197,7 @@ a node of interest is found.
                         \node (A) [right of = C] {A};
                         \draw (A) edge (C);
                         \node (B) [right of = A] {B};
-                        \node[circle, fill=black, inn\
+                        \node[circle, fill=black, inner sep=1pt] at (C.south east) {};
                         \draw (A) edge (B);
                         \draw[<-, blue, dashed, thick, bend right] (C.south east) to 
                                 (A.south west);
