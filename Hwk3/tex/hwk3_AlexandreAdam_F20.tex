@@ -353,7 +353,7 @@ a node of interest is found.
                                 %(C.north east);
                         
                 \end{tikzpicture}
-                                  & C \indep G \mid \emptyset & False \\
+                                  & $C \indep G \mid \emptyset$ & False \\
                                   \cmidrule{2-3}
                 \begin{tikzpicture}[baseline=(current bounding box.center)]
                         % cbr = child below right, pbl = parent below left (snippets)
@@ -622,6 +622,267 @@ a node of interest is found.
                 trail.}
         \label{tab:CondIndep2}
 \end{table}
+
+
+
+\section{Positive interaction in V-structure}
+We let $X,Y,Z$ be binary variables ($\in \{0, 1\} $) with a joint distribution 
+parametrized according to the V-structure shown in figure \ref{fig:Vstrct}.
+\begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+                % cbr = child below right, pbl = parent below left (snippets)
+                \tikzstyle{every node}=[circle, draw=black, node distance=1.5cm]
+                \tikzstyle{every edge}=[black, ->, thick, draw]
+                \node (Z) at (0, 0) {Z};
+                \node (Y) [above right of = Z] {Y};
+                \draw (Y) edge (Z);
+                \node (X) [above left of = Z] {X};
+                \draw (X) edge (Z);
+                
+        \end{tikzpicture}
+        
+        \caption{V-structure between the binary variables $X, Y$ and $Z$.}
+        \label{fig:Vstrct}
+\end{figure}
+
+We define the following constant
+\begin{align*}
+        \alpha &\equiv P(X = 1) \\ 
+        \beta &\equiv P(X = 1 \mid Z = 1) \\
+        \gamma &\equiv P(X = 1 \mid Z = 1 , Y = 1)
+\end{align*}
+In term of the marginal $P(X, Y)$ and the conditional $P(Z \mid X, Y)$,
+we can rewrite theses constants as follows
+\begin{align*}
+        \alpha &= \sum_y p(x = 1, y) \\[2ex]
+        \beta &= \frac{\displaystyle \sum_y P(X = 1, y) P(Z=1 \mid X=1, y)}{ 
+        \displaystyle \sum_x \sum_y P(x, y) P(Z = 1 \mid x, y)} \\[2ex]
+                \gamma &=\frac{P(X = 1, Y = 1) P(Z = 1 \mid X = 1, Y = 1)}{
+                        \displaystyle
+                \sum_x P(x, Y = 1) P(Z = 1 \mid x, Y = 1)} 
+\end{align*}
+\subsection{Inequalities}
+The most general case for $p \in \mathcal{L}(G)$ we can consider where all variable 
+are binary random variable is the following 
+\begin{align*}
+        X & \sim \text{Bernoulli}(p) \\
+        Y &\sim \text{Bernoulli}(q) \\[4ex]
+        Z \mid X, Y &\sim \left\{ 
+                \begin{array}{cc}
+                \text{Bernoulli}(\pi_{11}),& \text{if } X = 1 \text{ and } Y = 1 \\
+                \text{Bernoulli}(\pi_{10}),& \text{if } X = 1 \text{ and } Y = 0 \\
+                \text{Bernoulli}(\pi_{01}),& \text{if } X = 0 \text{ and } Y = 1 \\
+                \text{Bernoulli}(\pi_{00}),& \text{if } X = 0 \text{ and } Y = 0 \\
+        \end{array}
+        \right.
+\end{align*}
+To simplify the expressions for the constant, we will work with coin flip for $X$ and 
+$Y$. Therefore,
+\begin{align}
+        \label{eq:alpha}
+        \alpha &= pq + p(1 - q) = 0.5 \s\s\s \{\text{Since } X \indep Y \mid 
+        \emptyset\}\\[3ex]
+        \nonumber
+        \beta &= \frac{pq\pi_{11} + p(1 - q) \pi_{10}}{pq\pi_{11} + p(1 - q) \pi_{10} + 
+        (1 - p)q \pi_{01} + (1 - p)(1 - q)\pi_{00}}  \\[1ex]
+        \label{eq:beta}
+        &= \frac{\pi_{11} + \pi_{10}}{\pi_{11} + \pi_{10} + \pi_{01} + \pi_{00}} \\[3ex]
+        \label{eq:gamma}
+        \gamma &=  \frac{pq \pi_{11}}{pq \pi_{11} + (1 - p)q \pi_{01}} = 
+        \frac{\pi_{11}}{\pi_{11} + \pi_{01}}
+\end{align}
+
+
+
+\subsubsection{$\gamma < \alpha$}
+Here, we notice that $\pi_{11}$ and $\pi_{01}$ have a big impact on the relative 
+importance of $\gamma$ when compared. We can see that 
+\begin{align*}
+        \pi_{11} \gg \pi_{01} \leq 1 \implies  \gamma \rightarrow 1 \\
+        \pi_{01} \gg \pi_{11} \leq 1 \implies  \gamma \rightarrow 0
+\end{align*}
+Setting every other parameter to $0.5$, $\pi_{11} = 0.01$ and $\pi_{01} = 0.9$, we get 
+the following example for which $\gamma < \alpha$
+\renewcommand{\arraystretch}{1}
+\begin{table}[H]
+\begin{minipage}{.45\textwidth}
+        \centering
+        
+        \begin{tabular}{|c|c|c|}
+                \hline
+                X & Y & P(X, Y) \\  \hline
+                1 & 1 & 0.25 \\\hline 
+                1 & 0 & 0.25 \\\hline 
+                0 & 1 & 0.25 \\\hline 
+                0 & 0 & 0.25 \\\hline
+        \end{tabular}
+        \caption{Joint distribution of 2 coin flip.}
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+        \centering
+        \begin{tabular}{|c|c|c|}
+                \hline
+                X & Y & $P(Z = 1 \mid X, Y)$ \\\hline
+                1 & 1 & 0.01 \\\hline
+                1 & 0 & 0.5 \\\hline
+                0 & 1 & 0.9 \\\hline
+                0 & 0 & 0.5 \\\hline
+        \end{tabular}
+        \caption{Conditional on $Z = 1$ with $\gamma \ll 1$.}
+\end{minipage}
+        \label{tab:Joint}
+\end{table}
+
+\begin{table}[H]
+        \centering
+        \begin{tabular}{|c|c|c|}
+                \hline 
+                $\alpha$ & $\beta$ & $\gamma$ \\ \hline 
+                0.5 & 0.28 & 0.01 \\\hline
+        \end{tabular}
+        \caption{Results}
+        \label{tab:Res1}
+\end{table}
+
+
+
+\subsubsection{$\alpha < \gamma < \beta$}
+$\gamma > \alpha$ can be obtained by setting $\pi_{11} \gg \pi_{01}$. To get 
+the RHS of the inequality, we must set $\pi_{00}\ll 1$.
+The following table works as intended:
+\begin{table}[H]
+\begin{minipage}{.45\textwidth}
+        \centering
+        
+        \begin{tabular}{|c|c|c|}
+                \hline
+                X & Y & P(X, Y) \\  \hline
+                1 & 1 & 0.25 \\\hline 
+                1 & 0 & 0.25 \\\hline 
+                0 & 1 & 0.25 \\\hline 
+                0 & 0 & 0.25 \\\hline
+        \end{tabular}
+        \caption{Joint distribution of 2 coin flip.}
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+        \centering
+        \begin{tabular}{|c|c|c|}
+                \hline
+                X & Y & $P(Z = 1 \mid X, Y)$ \\\hline
+                1 & 1 & 0.9 \\\hline
+                1 & 0 & 0.5 \\\hline
+                0 & 1 & 0.5 \\\hline
+                0 & 0 & 0.001 \\\hline
+        \end{tabular}
+        \caption{Conditional on $Z = 1$ with $\gamma \ll 1$.}
+\end{minipage}
+        \label{tab:Joint}
+\end{table}
+
+\begin{table}[H]
+        \centering
+        \begin{tabular}{|c|c|c|}
+                \hline 
+                $\alpha$ & $\beta$ & $\gamma$ \\ \hline 
+                0.5 & 0.74 & 0.64 \\\hline
+        \end{tabular}
+        \caption{Results}
+        \label{tab:Res2}
+\end{table}
+
+\subsubsection{$\beta < \alpha < \gamma$}
+Here, starting from equilibrium (all parameter equal), we can shift $\beta$ to 
+be smaller than the other by increasing $\pi_{00}$. Then we can increase 
+$\gamma$ slightly by increasing slightly $\pi_{11}$. Too harsh an 
+increase will upset the lower inequality.
+
+\begin{table}[H]
+\begin{minipage}{.45\textwidth}
+        \centering
+        
+        \begin{tabular}{|c|c|c|}
+                \hline
+                X & Y & P(X, Y) \\  \hline
+                1 & 1 & 0.25 \\\hline 
+                1 & 0 & 0.25 \\\hline 
+                0 & 1 & 0.25 \\\hline 
+                0 & 0 & 0.25 \\\hline
+        \end{tabular}
+        \caption{Joint distribution of 2 coin flip.}
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+        \centering
+        \begin{tabular}{|c|c|c|}
+                \hline
+                X & Y & $P(Z = 1 \mid X, Y)$ \\\hline
+                1 & 1 & 0.6 \\\hline
+                1 & 0 & 0.5 \\\hline
+                0 & 1 & 0.5 \\\hline
+                0 & 0 & 0.9 \\\hline
+        \end{tabular}
+        \caption{Conditional on $Z = 1$ with $\gamma \ll 1$.}
+\end{minipage}
+        \label{tab:Joint}
+\end{table}
+
+\begin{table}[H]
+        \centering
+        \begin{tabular}{|c|c|c|}
+                \hline 
+                $\alpha$ & $\beta$ & $\gamma$ \\ \hline 
+                0.5 & 0.44 & 0.54 \\\hline
+        \end{tabular}
+        \caption{Results}
+        \label{tab:Res3}
+\end{table}
+
+
+\subsection{}
+
+\subsubsection{$\gamma < \alpha$}
+In order for this inequality to hold, then the effect $Z = 1$ must contain information 
+about a correlation between the causes $Y = 1$ and the possible values of $X$.
+This information is encoded 
+through the parameters $\pi_{11}$ and $\pi_{01}$. By lowering $\pi_{01}$, we 
+naturally lower the possibility that $X = 0$ given $Z = Y = 1$. Conversely 
+for $\pi_{11}$. Therefore, the condition $\pi_{01} \ll \pi_{11} \leq 1$, 
+all other parameters being equal, means that the observation of the effect $Z = 1$ 
+and the cause $Y = 1$ update strongly our belief about the probability of observing $X = 1$. 
+Initially, we had no particular opinion $\alpha = 0.5$. After observation, we are now 
+almost convinced that the second cause was $X = 1$.
+
+
+\subsubsection{$\alpha < \gamma < \beta$}
+Here, we reversed the previous inequality first so that the observation of $Y = 1$ 
+and the observation of the effect $Z = 1$ will increase the probability of observing 
+$X = 1$. The RHS can function independently of the first one since $\pi_{00}$ 
+do not affect $\gamma$. Indeed, $Y = 1$ is observed for $\gamma$ therefore
+the probability 
+of observing $Y = 0$ do not impact $\gamma$. \par
+For the $\beta$ probability, we are working with less information about the cause 
+of $Z = 1$ (we do not know $Y$). Therefore, to have higher confidence of observing 
+$X = 1$ without knowing the $Y$ cause means we must have a strong belief that 
+observing the effect $Z = 1$ means the cause $X = 0$ is unlikely. 
+This is encoded in $\pi_{00}$
+and $\pi_{01}$ (but we do not touch this one in order to keep $\gamma$ intact).
+This is why setting $\pi_{00}$ to a low value yielded the inequality we seeked.
+
+\subsubsection{$\beta < \alpha < \gamma$}
+Here, we want to lower our confidence that observing $Z = 1$ was caused by 
+$X = 1$. To do that, we bring $\pi_{00}$ to a very probable value. This 
+update our belief that an effect $Z = 1$ is most likely caused by $X = 0$ when 
+$Y = 0$. We do not increase $\pi_{01}$ because we do not want to lower our 
+confidence that observing $Z = 1$ and $Y = 1$ is related to an event with 
+$X = 1$ ($\gamma$). This is why we increase only slightly $\pi_{11}$ in order to 
+increase $\gamma$ without upsetting too much $\beta$. 
+
+In other words, observing the effect $Y = 1$ will increase slightly our confidence 
+that the second cause for $Z = 1$ was $X = 1$ as opposed to no belief at all 
+($\alpha$), updating our initial belief that the 
+most probable cause was $X = 0$.
+
+
 
 \section{Appendix}
 \subsection{Bayes Ball algorithm}
