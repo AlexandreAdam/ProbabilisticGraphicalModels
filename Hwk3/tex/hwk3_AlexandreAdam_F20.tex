@@ -890,7 +890,131 @@ most probable cause was $X = 0$.
 \section{Bizarre Conditional Independence Properties}
 
 \section{EM and Gaussian Mixture}
+\textbf{Primer}
 
+The Gaussian Mixture  Model can be viewed graphical model with a random categorical latent 
+variable  $\mathbf{z}_i$ and deterministic parameters 
+$$\theta = (\pi_{1,\dots,K}, (\mu_i)_{i = 1}^K, (\Sigma_i)_{i = 1}^K)^T.$$
+\begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+                \tikzstyle{every node}=[node distance=1.5cm]
+                %\tikzstyle{every edge}=[black, ->, thick, draw]
+                \node[circle, draw] (zi) at (0,0) {$K$};
+                \node[circle, draw, pattern=north west lines, pattern color=gray] (x) 
+                        [right of = zi] {$D$};
+                \node at (0, -0.7) {$\mathbf{z}_i$};
+                \node at (1.5, -0.7) {$\mathbf{x}_i$};
+                \draw[->, thick, draw] (zi) edge (x);
+                \draw (-1, 1) rectangle (2.5, -1);
+                \node at (1.5, -1.3) {$i = 1,\dots, N$};
+
+                \draw (-3, 3.5) rectangle (2.75, 2);
+                \node[rectangle, draw, fill=gray!50] (pi) at (-2, 2.75) {1};
+                \draw[->, thick] (pi) edge (zi);
+                \node at (-2, 2.25) {$\pi_j$};
+
+                \node[rectangle, draw, fill=gray!50] (mu) [right of = pi] {$D$};
+                \node at (-0.5, 2.25) {$\mu_j$};
+                \draw[->, thick] (mu) edge (x);
+
+                \node[rectangle, draw, fill=gray!50, node distance=2cm]
+                        (sigma) [right of = mu] {$D \times D$};
+                \node at (2, 2.25) {$\Sigma_j$};
+                \draw[->, thick] (sigma) edge (x);
+
+                \node at (-2.25, 1.75) {$j = 1, \dots, K$};
+                
+                
+                
+        \end{tikzpicture}
+        \caption{Gaussian Mixture Model with plate notation. The label inside the circles 
+        are references to the vector dimension. $\mathbf{z}_i$ is a $K$-vector, etc.}
+        \label{fig:GMM}
+\end{figure}
+
+
+
+There is a  latent variable $\mathbf{z}_i$ for each observations ($i=1,\dots, N$) and latent variables $\mu_j$ and $\Sigma_j$ for each cluster $j = 1,\dots,K$. The $z_{i}$ are distributed with a $K$-Categorical distribution. The Multinoulli is a natural choice.
+$$
+  \mathbf{z}_i \sim \text{Multinoulli}(\pi_{1,\dots,K})
+$$
+We then assume the conditional over an observation $\mathbf{x}_i$ assigned to the cluster $j$ ($z_{i, j} = 1$) to follow a multivariate normal distribution
+$$
+\mathbf{x}_i \mid z_{i, j} = 1 \sim \mathcal{N}(\mu_j, \Sigma_j)
+$$
+where $\mathbf{x}$ and $\mu_j$ are $D$-vectors, and the covariance 
+matrix is a positive semi-definite, symmetric $D \times D$ matrix. We define 
+the complete log-likelihood (a lower bound on the log-likelihood with missing 
+information):
+$$
+\mathcal{L}_C = \log p(\mathbf{x}, \mathbf{z} \mid  \theta) = \sum_{i = 1}^N \sum_{j = 1}^K
+    z_{i, j} \log \mathcal{N}(\mathbf{x}_i \mid \mu_j , \Sigma_j) 
+    + z_{i, j} \log \pi_j
+$$
+
+We take the expectation of that likelihood 
+
+$$
+ \mathbb{E}_q\left[\log p(\mathbf{x}, \mathbf{z} \mid  \theta) \right] 
+ =  \sum_{i = 1}^N \sum_{j = 1}^K
+    \mathbb{E}_q[z_{i, j}] (\log \mathcal{N}(\mathbf{x}_i \mid \mu_j , \Sigma_j) 
+    +  \log \pi_j)
+$$
+The expectation is taken with respect to the marginal distribution 
+of the cluster assignement variable $z_i$:
+$$
+ q^{(t + 1)}(\mathbf{z}) = p(\mathbf{z} \mid \mathbf{x}_i , \theta^{(t)})
+$$
+For a single observation, this is 
+$$
+  q^{(t + 1)}(\mathbf{z}_i) = p(\mathbf{z}_i \mid \mathbf{x}_i , \theta^{(t)})
+$$
+Using Bayes theorem, 
+$$
+  q^{(t + 1)}(\mathbf{z}_i) = \frac{p(\mathbf{x}_i \mid \mathbf{z}_i,  \theta^{(t)}) p(\mathbf{z}_i \mid \pi^{(t)})}{p(\mathbf{x}_i \mid \theta^{(t)})}
+$$
+We define the weight 
+$\Upsilon_{i, j}$ to be the probability 
+$\Upsilon_{i, j}^{(t + 1)} = q^{(t + 1)}(z_{i, j} = 1)$.
+Using the expressions for the conditional and the prior on the 
+latent variable $z_{i, j} = 1$, we can write
+$$
+\mathbb{E}_{q^{(t + 1)}}(z_{i, j}) = 
+        \Upsilon^{(t + 1)}_{i, j} = 
+        \frac{
+                \pi_j^{(t)} \mathcal{N}(\mathbf{x}_i \mid \mu_j^{(t)}, \Sigma_j^{(t)})
+                }{
+                \displaystyle \sum_{\ell = 1}^K \pi_\ell^{(t)}
+                \mathcal{N}(\mathbf{x}_i \mid \mu_\ell^{(t)}, \Sigma_\ell^{(t)})
+} 
+$$
+At the maximization step, we optimize for the deterministic parameters 
+$\theta^{(t + 1)}$
+$$
+\theta^{(t + 1)} \overset{\Delta}{=} \underset{\theta}{\text{argmax }} 
+\mathbb{E}_{q^{(t +1)}} [\log p(\mathbf{x}, \mathbf{z} \mid \theta)]
+$$
+Writing out all the terms, this is 
+\[
+        \theta^{(t+1)} =  \underset{\theta}{\text{argmax }} 
+        \sum_{i = 1}^{N} \sum_{j = 1}^{K}\Upsilon_{i, j}^{(t + 1)} 
+        \left( 
+        \frac{D}{2}\log \det \Sigma^{-1}
+        - \frac{1}{2} (\mathbf{x}_i - \mu_j)^T \Sigma^{-1} (\mathbf{x}_i - \mu_j)
+        + \log \pi_j
+        \right)
+
+
+\]
+
+
+%We outline here the EM algorithm for the GMM:
+
+  %1. Initialize $\mu^{(1)}$ with k-means++;
+  %2. Initialize $\Sigma_j^{(1)}$ with a large spherical covariance $\sigma^2 \mathbf{1}$, $\sigma^2 \gg 1$;
+  %3. Initialize $\pi_j^{(1)}$ with the proportions of each class from k-means++;
+  %4. Iterate until convergence ()
 
 
 \section{Appendix}
