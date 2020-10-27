@@ -6,6 +6,7 @@
 \usepackage{mathtools}
 \usepackage{amstext}
 \usepackage{amsthm}
+\usepackage{bm}
 \usepackage{fancyhdr}
 \usepackage{centernot}
 \usepackage[ruled,vlined]{algorithm2e}
@@ -890,10 +891,10 @@ most probable cause was $X = 0$.
 \section{Bizarre Conditional Independence Properties}
 
 \section{EM and Gaussian Mixture}
-\textbf{Primer}
+\subsubsection{Primer}
 
-The Gaussian Mixture  Model can be viewed graphical model with a random categorical latent 
-variable  $\mathbf{z}_i$ and deterministic parameters 
+The Gaussian Mixture Model is a graphical model with a random categorical latent 
+variable $\mathbf{z}_i$ and deterministic parameters 
 $$\theta = (\pi_{1,\dots,K}, (\mu_i)_{i = 1}^K, (\Sigma_i)_{i = 1}^K)^T.$$
 \begin{figure}[H]
         \centering
@@ -951,6 +952,7 @@ $$
 \mathcal{L}_C = \log p(\mathbf{x}, \mathbf{z} \mid  \theta) = \sum_{i = 1}^N \sum_{j = 1}^K
     z_{i, j} \log \mathcal{N}(\mathbf{x}_i \mid \mu_j , \Sigma_j) 
     + z_{i, j} \log \pi_j
+    + (1 - z_{i, j})\log(1 - \pi_j))
 $$
 
 We take the expectation of that likelihood 
@@ -960,6 +962,8 @@ $$
  =  \sum_{i = 1}^N \sum_{j = 1}^K
     \mathbb{E}_q[z_{i, j}] (\log \mathcal{N}(\mathbf{x}_i \mid \mu_j , \Sigma_j) 
     +  \log \pi_j)
+    +
+(1 - \mathbb{E}_q[z_{i, j}] )\log(1 - \pi_j)
 $$
 The expectation is taken with respect to the marginal distribution 
 of the cluster assignement variable $z_i$:
@@ -995,20 +999,92 @@ $$
 \theta^{(t + 1)} \overset{\Delta}{=} \underset{\theta}{\text{argmax }} 
 \mathbb{E}_{q^{(t +1)}} [\log p(\mathbf{x}, \mathbf{z} \mid \theta)]
 $$
-Writing out all the terms, this is 
+Writing out all the terms except the constant term, 
 \[
         \theta^{(t+1)} =  \underset{\theta}{\text{argmax }} 
         \sum_{i = 1}^{N} \sum_{j = 1}^{K}\Upsilon_{i, j}^{(t + 1)} 
         \left( 
-        \frac{D}{2}\log \det \Sigma^{-1}
-        - \frac{1}{2} (\mathbf{x}_i - \mu_j)^T \Sigma^{-1} (\mathbf{x}_i - \mu_j)
+        \frac{1}{2}\log \det \Sigma^{-1}
+        - \frac{1}{2} (\mathbf{x}_i - \mu_j)^T \Sigma^{-1}_j (\mathbf{x}_i - \mu_j)
         + \log \pi_j
         \right)
-
-
+        +
+        \left(1 - \Upsilon_{i, j}^{(t+1)} \right)\log(1 - \pi_j)
+\]
+\subsubsection{M-step for $\pi_j$}
+\[
+        \partial_{\pi_\ell} \mathcal{L} = \sum_{i=1}^{N} \sum_{j = 1}^{K} 
+        \Upsilon_{i, j}^{(t + 1)} \frac{\delta_{j \ell}}{\pi_j} 
+        - 
+        (1 - \Upsilon_{i, j}^{(t + 1)}) \frac{\delta_{j\ell}}{1 - \pi_j}
+\]
+where $\delta_{j\ell}$ is the Kronecker delta coming from the partial derivate.
+The MLE solution is found this derivative is 0:
+\[
+        \frac{1}{\hat{\pi}_\ell}\sum_{i = 1}^{N} \Upsilon_{i, j}^{(t+1)} 
+        = \frac{1}{1 - \hat{\pi}_{\ell}} (N - \sum_{i = 1}^{N}\Upsilon_{i, j}^{(t+1)})
+\]
+By noticing the symmetry between the parameter $\pi_\ell^*$
+and the sum over the soft labels, we 
+conclude that
+\[
+        \boxed{\hat{\pi}_\ell = \frac{1}{N}\sum_{i = 1}^{N} \Upsilon_{i, j}^{(t + 1)} }
 \]
 
 
+\subsubsection{M-step for $\mu_j$}
+\[
+        \partial_{\mu_\ell} \mathcal{L} = \sum_{i = 1}^{N} \sum_{j = 1}^{K} 
+        \Upsilon_{i, j}^{(t+1)}\Sigma^{-1}_j(\mathbf{x}_i - \mu_j) \delta_{j, \ell}
+\]
+At the stationnary point, we can simplify the covariance matrix and we get 
+\[
+        0 = \sum_{i = 1}^{N} \Upsilon_{i, \ell}^{(t+1)}\mathbf{x}_i 
+        - \hat{\mu}_\ell\sum_{i = 1}^{N}\Upsilon_{i, \ell}^{(t+1)}
+\]
+Therefore, 
+\[
+      \boxed{  \hat{\mu}_{\ell} = \frac{1}{\displaystyle \sum_i \Upsilon_{i, \ell} 
+      ^{(t+1)}} \sum_{i = 1}^{N} \Upsilon_{i, \ell}^{(t + 1)} \mathbf{x}_i}
+\]
+\subsubsection{M-step for $\Sigma_j$}
+We will derive the full form of the update, and give the special result for a 
+diagonal covariance matrix at the end. To simplify the derivative, we derive 
+with respect to $\Lambda \equiv \Sigma^{-1}$:
+\[
+        \partial_{\Lambda_\ell} \mathcal{L} = \sum_{i = 1}^{N} \sum_{j = 1}^{K} 
+        \Upsilon_{i, j}^{(t+1)}
+        \left(\frac{1}{2} \Sigma_j 
+                - \frac{1}{2}
+        (\mathbf{x}_i - \hat{\mu}_j)(\mathbf{x}_i - \hat{\mu}_j)^{T} \right) \delta_{j \ell} 
+\]
+At the stationary point, this gives
+\[
+        \hat{\Sigma}_\ell =
+        \frac{1}{\displaystyle\sum_{i = 1}^{N} \Upsilon_{i, \ell}^{(t+1)} } 
+        \sum_{i = 1}^{N} \Upsilon_{i, \ell}^{(t + 1)} 
+        (\mathbf{x}_i - \hat{\mu}_\ell)(\mathbf{x}_i - \hat{\mu}_\ell)^{T}
+\]
+Assuming a spherical covariance matrix $\Sigma_j = \sigma^{2}_j\mathbf{1}$, then 
+the terms involving the covariance become scalars. The gradient will 
+also be a scalar: 
+\[
+        \partial_{\sigma^{-2}_\ell} \mathcal{L} = 
+        \sum_{i = 1}^{N} \sum_{j =1}^{K}
+        \Upsilon_{i, j}^{(t + 1)}
+        \left(  
+                \frac{1}{2}\sigma^{2}_j - \frac{1}{2}(\mathbf{x}_i - \hat{\mu}_j)^{T} 
+                (\mathbf{x}_i - \hat{\mu}_j)
+\right)\delta_{j \ell}
+\]
+At the stationary point, we get a similar expression to the previous one, but this 
+time scalar:
+\[
+       \boxed{ \hat{\sigma}^{2}_\ell = \frac{1}{\displaystyle 
+        \sum_{i = 1}^{N} \Upsilon_{i, \ell}^{(t+1)}} 
+        \sum_{i = 1}^{N} \Upsilon_{i,\ell}^{(t+1)} (\mathbf{x}_i - \hat{\mu}_\ell)^{T} 
+(\mathbf{x}_i - \hat{\mu}_\ell)}
+\]
 %We outline here the EM algorithm for the GMM:
 
   %1. Initialize $\mu^{(1)}$ with k-means++;
