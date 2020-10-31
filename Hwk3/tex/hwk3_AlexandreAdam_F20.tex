@@ -6,6 +6,7 @@
 \usepackage{mathtools}
 \usepackage{amstext}
 \usepackage{amsthm}
+\usepackage{mathrsfs}
 \usepackage{bm}
 \usepackage{fancyhdr}
 \usepackage{centernot}
@@ -60,7 +61,11 @@
         %observed/.style={pattern=north west lines, pattern color=gray}
         %active_path/.style={->|, dashed, thick, blue}
 %}
+\newtheorem*{theorem}{Theorem}
 
+\newtheoremstyle{named}{}{}{\itshape}{}{\bfseries}{.}{.5em}{\thmnote{#3's }#1}
+\theoremstyle{named}
+\newtheorem*{namedtheorem}{Theorem}
 \tikzset{>=latex}
 
 \begin{document}
@@ -732,7 +737,7 @@ the following example for which $\gamma < \alpha$
         \end{tabular}
         \caption{Conditional on $Z = 1$ with $\gamma \ll 1$.}
 \end{minipage}
-        \label{tab:Joint}
+        \label{tab:Joint1}
 \end{table}
 
 \begin{table}[H]
@@ -778,7 +783,7 @@ The following table works as intended:
         \end{tabular}
         \caption{Conditional on $Z = 1$ with $\gamma \ll 1$.}
 \end{minipage}
-        \label{tab:Joint}
+        \label{tab:Joint2}
 \end{table}
 
 \begin{table}[H]
@@ -824,7 +829,7 @@ increase will upset the lower inequality.
         \end{tabular}
         \caption{Conditional on $Z = 1$ with $\gamma \ll 1$.}
 \end{minipage}
-        \label{tab:Joint}
+        \label{tab:Joint3}
 \end{table}
 
 \begin{table}[H]
@@ -885,8 +890,235 @@ most probable cause was $X = 0$.
 
 
 \section{Equivalence of DGM with UGM}
+We consider a directed tree graphical model $G = (V, E)$. By definition, each nodes has at most 
+one parent 
+\[
+        |\pi_i| \leq 1\s \forall \s i \in V 
+\]
+A distribution $p$ is part of the family of distribution $\mathcal{L}(G)$
+associated with the graph $G$ if it has legal factors $\{f_i\}$ associated with
+the conditional 
+independences of $G$
+\[
+        \mathcal{L}(G) = \left\{ \text{p is a distribution over }\, X_V
+        \,\middle\vert\, 
+        p(X_V) = \prod_{i} f_i(x_i \mid x_{\pi_i})
+        \right\}
+\]
 
-\section{Hammersley-Clifford Counter-example}
+The moralized graph $\bar{G}$, which is the UGM associated with $G$ will have cliques 
+of size at most 2 since no edges will be added to the tree in the moralization 
+procedure. 
+\[
+        \max |C| \leq |\pi_i| + 1 \s \forall i \in V\s \text{and } 
+        \forall \s C \s \in \mathscr{C}_{\max}
+\]
+where $\mathscr{C}_{\max}$ is the set of maximal cliques in $\bar{G}$.
+This is to say that all cliques will have two nodes.
+Therefore, the probability distribution family associated with $\mathcal{L}(\bar{G})$ 
+with legal factors (potentials) is defined over the exact same set of nodes 
+as previously, making $\mathcal{L}(G) = \mathcal{L}(\bar{G})$. 
+\[
+        \mathcal{L}(\bar{G}) = \left\{   \text{p is a distribution over }\, X_V
+        \,\middle\vert\, 
+        p(X_V) = \frac{1}{Z} \prod_{C \in \mathscr{C}_{\max}} \psi_C(x_C) 
+ \right\}
+\]
+With this idea in mind, we prove $\mathcal{L}(G) = \mathcal{L}(\bar{G})$ by 
+induction.
+\begin{proof}
+        Let $G_n = (V, E)$ be a directed tree of size $n = |V|$, the number of nodes 
+        in that tree. 
+        We first set $n = 1$. In this case, 
+        \[
+                p_{G_1}(X_V) = f_1(x_1)
+        \]
+        and
+        \[
+                p_{\bar{G}_1}(X_V) \propto \psi_1(x_i)
+        \]
+        The two distributions have the same factorization and belongs to the same family.
+        Therefore, 
+        \[
+                \mathcal{L}(G_1) = \mathcal{L}(\bar{G}_1)
+        \]
+
+        For $n = 2$, 
+        \[
+                p_{G_2}(X_V) = f_1(x_1)f_2(x_2 \mid x_1)
+        \]
+        and
+        \[
+                p_{\bar{G}_2}(X_V) \propto \psi_1(x_1,  x_2) 
+        \]
+        since there is only one clique of the maximal size in that set. 
+        We make the following map between the two parametrization:
+        \[
+                \psi_1(x_1, x_2) \mapsto f_1(x_1)f_2(x_2 \mid x_1)
+        \]
+        Since this is a bijective map between the two sets of factors, the 
+        set of distribution that can be represented by $G_2$ is equal to the 
+        set of distribution represented by $\bar{G}_2$
+        \[
+                \mathcal{L}(G_2) = \mathcal{L}(\bar{G}_2)
+        \]
+
+        Now, we assume that $\mathcal{L}(G_n) = \mathcal{L}(\bar{G}_n)$ is true. 
+        For $n + 1$, we have
+        \[
+                p_{G_{n + 1}}(X_V) = \prod_{i = 1}^{n+1} f_i(x_i \mid p_{\pi_i})
+        \]
+        Since $\pi_{n +1} = n$, 
+        \[
+                p_{G_{n + 1}}(X_V) = f_{n + 1}(x_{n + 1} \mid x_{n})\prod_{i = 1}^{n} 
+                f_i(x_i \mid x_{\pi_i}) = f_{n + 1}(x_{n + 1} \mid x_n) p_{G_n}(X_V)
+        \]
+        On the other hand
+        \[
+                p_{\bar{G}_{n + 1}}(X_V) = \frac{1}{Z} \prod_{C \in \mathscr{C}_{\max}} 
+                \psi_C (x_C)
+        \]
+        Since all cliques are of length 2, we can factor out the clique 
+        \[
+                C_{n + 1} = \{x_{n + 1}, x_n\} 
+        \]
+        \[
+                p_{\bar{G}_{n + 1}}(X_V) = \frac{1}{Z} \psi_{C_{n + 1}}(x_{n + 1}, x_n) 
+                \prod_{C \in \mathscr{C}_{\max} \setminus C_{n + 1}} \psi_C(x_C)
+        \]
+        Ignoring the normalization constant, this is 
+        \[
+                p_{\bar{G}_{n + 1}}(X_V) 
+                \propto \psi_{C_{n + 1}}(x_{n + 1}, x_n) p_{\bar{G}_n}(X_V)
+        \]
+        Since we know there exist a bijective map of the factors for the graph of 
+        $n$ nodes, then we have found that $G_{n + 1}$ also have a bijective 
+        map between factors:
+        \[
+                \psi_{C_{n + 1}}(x_{n + 1}, x_n) \mapsto f_{n + 1}(x_{n + 1} \mid x_n)
+        \]
+        Therefore
+        \[
+                \mathcal{L}(G_{n + 1}) = \mathcal{L}(\bar{G}_{n + 1})
+        \]
+
+\end{proof}
+
+
+
+\section{Hammersley-Clifford Counter-Example}
+\begin{namedtheorem}[Hammersley-Clifford]
+Suppose $\mathcal{UI}$ is the set of positive distributions that satisfy the global Markov 
+property of the Markov network $G = (V, E)$. 
+\[
+        p(X_V) \models (X \indep Y \mid Z),\s\s \text{s.t.}\s\s \text{sep}_G(X ;Y \mid Z)
+\]
+for the disjoint sets $X$, $Y$ and $Z$ in $V$.
+Then, suppose that  
+ $\mathcal{UF}$ is the set of Gibbs distributions that can be expressed as a factorization 
+of the form 
+\[
+        p(X_V) = \frac{1}{Z} \prod_{C \in \mathscr{C}_{\max}} \psi_C(x_C)
+\]
+Then
+\[
+        \mathcal{UI} = \mathcal{UF}
+\]
+\end{namedtheorem}
+
+We can show that a probability distribution that is not strictly positive 
+will not factorize according to the set of distributions $\mathcal{UF}$, 
+even if it respect 
+the global Markov property of the graph $G$.
+
+We consider the following graph
+\begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+                % cbr = child below right, pbl = parent below left (snippets)
+                %\tikzset{>=latex}
+                \tikzstyle{every node}=[circle, draw=black, node distance=1.5cm]
+                \tikzstyle{every edge}=[black, -, thick, draw]
+                \node (X1) at (0, 0) {$X_1$};
+                \node (X2) [below of = X1] {$X_2$};
+                \draw (X1) edge (X2);
+                \node (X3) [right of = X2] {$X_3$};
+                \draw (X2) edge (X3);
+                \node (X4) [above of = X3] {$X_4$};
+                \draw (X4) edge (X3);
+                \draw (X4) edge (X1); 
+        \end{tikzpicture}
+        
+        \caption{A Markov Network of binary variables.}
+        \label{fig:HCMarkovNetwork}
+\end{figure}
+And consider the following probability distribution
+\[
+        P(X_V) = \left\{ 
+                \begin{matrix}
+                        \dfrac{1}{8},& \text{if }\, X_V \in \Xi \\[3ex]
+                        0,& \text{otherwise}
+
+                        
+                \end{matrix}
+        \right.
+\]
+Where we have created the set 
+\[
+        \Xi = \left\{
+                \begin{matrix}
+                        (0,\ 0,\ 0,\ 0),\ (1,\ 0,\ 0,\ 0),\ (1,\ 1,\ 0,\ 0), 
+                        (1,\ 1,\ 1,\ 0),\ \\[2ex] (0,\ 0,\ 0,\ 1),\ 
+                        (0,\ 0,\ 1,\ 1),\ (0,\ 1,\ 1,\ 1),\ 
+                        (1,\ 1,\ 1,\ 1)
+                \end{matrix}
+        \right\}
+\]
+We do not show that $P$ satisfy the global Markov property, and take it for 
+granted since it can be proved easily by showing that conditioning on 
+any set $Z$ that separates $X$ and $Y$ will make $X$ and $Y$ deterministically 
+determined on $Z$, making $X$ and $Y$ independent.
+
+Here, we prove that $P(X_V) \not\in \mathcal{UF}$:
+\begin{proof}
+        Suppose that $P(X_V) \in \mathcal{UF}$. Then, it can be factorized 
+        over the set of maximal cliques of $G$:
+        \[
+                P(X_V) = \frac{1}{Z} \phi_1(X_1, X_2) \phi_2(X_1, X_4) 
+                \phi_3(X_2, X_3) \phi_4(X_3, X_4)
+        \]
+        We consider the case $p(0, 1, 1, 0) = 0$. To have a null probability, 
+        we could have $Z = \infty $, but this would not be consistent with 
+        the distribution $P(X_V)$ since $Z$ is common to all $X_V$.
+
+        Another solution is to set one of the factor $\phi_i$ to $0$. 
+        Suppose we set 
+        \[
+                \phi_1(0, 1) = 0
+        \]
+        Then, 
+        \[
+                p(0, 1, 1, 1) = \frac{1}{Z}\phi_1(0, 1)\phi_2(0, 1) 
+                \phi_3(1, 1) \phi_4(1, 1) = 0
+        \]
+        But, the distribution we started with assumes $P(0, 1, 1, 1) = \frac{1}{8}$ 
+        so we must have $\phi_1(0, 1) \not= 0$. 
+        Going over all other possibilities, we find that no factor can be 
+        set to 0.
+        \begin{align*}
+                p(0, 0, 0, 0) = \frac{1}{8} &\implies \phi_2(0, 0) \not= 0\\
+                p(0, 1, 1, 1) = \frac{1}{8} &\implies \phi_3(1, 1) \not= 0 \\
+                p(1, 1, 1, 0) = \frac{1}{8} &\implies \phi_4(1, 0) \not= 0
+        \end{align*}
+        We find that there is no way to have $p(0, 1, 1, 0) = 0$ given the 
+        factorisation in $\mathcal{UF}$.
+        This is a contradiction, and we conclude that $P(X_V) \not\in \mathcal{UF}$.
+
+\end{proof}
+
+
+
+
 
 \section{Bizarre Conditional Independence Properties}
 
@@ -1019,7 +1251,7 @@ Writing out all the terms except the constant term,
         (1 - \Upsilon_{i, j}^{(t + 1)}) \frac{\delta_{j\ell}}{1 - \pi_j}
 \]
 where $\delta_{j\ell}$ is the Kronecker delta coming from the partial derivate.
-The MLE solution is found this derivative is 0:
+The MLE solution is found where this derivative is 0:
 \[
         \frac{1}{\hat{\pi}_\ell}\sum_{i = 1}^{N} \Upsilon_{i, j}^{(t+1)} 
         = \frac{1}{1 - \hat{\pi}_{\ell}} (N - \sum_{i = 1}^{N}\Upsilon_{i, j}^{(t+1)})
@@ -1037,7 +1269,7 @@ conclude that
         \partial_{\mu_\ell} \mathcal{L} = \sum_{i = 1}^{N} \sum_{j = 1}^{K} 
         \Upsilon_{i, j}^{(t+1)}\Sigma^{-1}_j(\mathbf{x}_i - \mu_j) \delta_{j, \ell}
 \]
-At the stationnary point, we can simplify the covariance matrix and we get 
+At the stationary point, we can simplify the covariance matrix and we get 
 \[
         0 = \sum_{i = 1}^{N} \Upsilon_{i, \ell}^{(t+1)}\mathbf{x}_i 
         - \hat{\mu}_\ell\sum_{i = 1}^{N}\Upsilon_{i, \ell}^{(t+1)}
@@ -1102,7 +1334,7 @@ the notion of d-separation:
         \item{\textbf{Active path}} An active path from $J$ to $L$ given $K$ is 
                 an undirected path between $\ell \in L$ and $j \in J$ such that every 
                 node $i$ with two parents in this chain is observed ($i \in K$) or 
-                has a descendant in $K$ ($i \in K \cap \text{descendant}(i)$)
+                has a descendant in $K$
         \item{\textbf{D-separation}} $X_j$ is said to be conditionally independent to 
                 $X_L$ (or 
                 \textit{d-separate} $X_L$) given $X_K$ if there is no active path 
