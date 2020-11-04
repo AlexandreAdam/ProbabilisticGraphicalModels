@@ -115,12 +115,39 @@ We consider $G$, a DAG:
 black dot.}
         \label{fig:DGM1}
 \end{figure}
-To prove that $X \indep Y \mid T$, we use the Bayes Ball algorithm (see algorithm 
-\ref{alg:Bayes} in the appendix). We conclude that $\boxed{X \centernot\indep Y 
-\mid T}$ because there exists an undirected active path (blue dashed line in figure 
-\ref{fig:DGM1}) from $X$ to $Y$. This could also have been observed using the fact that
-the unobserved node $Z$ with two parents has a descendant that is 
-observed. 
+A distribution $p\in \mathcal{L}(G)$ satisfy the factorization 
+\[
+        p(x_V) = p(x)p(y)p(z \mid x, y) p(t \mid z)
+\]
+From figure \ref{fig:DGM1}, we understand the statement $X \indep Y \mid T$ should be false 
+in general. The following example show a case where this is indeed false.
+
+Consider $(X, Y, Z, T)$ to be a vector of binary variables. 
+\begin{enumerate}
+        \item $X$ and $Y$ are independent coin flips;
+        \item $Z$ has some high probability to be $1$ if $X = Y$;
+        \item $Z$ has some high probability to be zero otherwise;
+        \item $T$ has some high probability to be $1$ when $Z = 1$;
+        \item $T$ has some high probability to be $0$ when $Z = 0$.
+\end{enumerate}
+We are given that $T = 1$. Here, the conditional independence is clearly false 
+since 
+\[
+        p(x=1 \mid t=1, y=1) > p(x=1 \mid t=1, y=0)
+\]
+Therefore, 
+\[
+        p(x \mid t, y) \not= p(x  \mid t)
+\]
+
+
+
+%To prove that $X \indep Y \mid T$, we use the Bayes Ball algorithm (see algorithm 
+%\ref{alg:Bayes} in the appendix). We conclude that $\boxed{X \centernot\indep Y 
+%\mid T}$ because there exists an undirected active path (blue dashed line in figure 
+%\ref{fig:DGM1}) from $X$ to $Y$. This could also have been observed using the fact that
+%the unobserved node $Z$ with two parents has a descendant that is 
+%observed. 
 %As can be seen in figure \ref{fig:DGM1}, there is no active path between $X$ and $Y$ even 
 %though $T$ is observed. Therefore, $X$ and $Y$ are \textbf{d-separated} by $T$ and 
 %the conditional independence 
@@ -129,21 +156,14 @@ observed.
 %\]
 %holds for $p \s \in \s \mathcal{L}(G)$. $\qed$
 
-A distribution $p\in \mathcal{L}(G)$ satisfy the factorization 
-\[
-        \mathcal{L}(G) = \left\{ p \mid p(x_V) = \prod_{i=1}^{n} p(x_i \mid x_{\pi_i}) \right\}
-\]
-where $\pi_i$ is the set of all parents of node $i$ and $V$ is the set of vertex in the graph. 
+
+%where $\pi_i$ is the set of all parents of node $i$ and $V$ is the set of vertex in the graph. 
 %From this definition, $p$ is a distribution of $\mathcal{L}(G)$ if the 
 %following conditional independence relation holds
 %\[
         %p \s \in \mathcal{L}(G) \iff X_i \indep X_{nd(i)} \mid X_{\pi_i}\s \forall \s i
 %\]
-Therefore, $p\in  \mathcal{L}(G)$ must satisfy 
-\[
-        p(x_V) = p(x)p(y)p(z \mid x, y) p(t \mid z)
-\]
-
+%Therefore, $p\in  \mathcal{L}(G)$ must satisfy 
 
 \section{D-separation in DGM}
 We consider the graph $G$:
@@ -906,7 +926,7 @@ independences of $G$
         \right\}
 \]
 
-The moralized graph $\bar{G}$, which is the UGM associated with $G$ will have cliques 
+The moralized graph $\bar{G}$, is the UGM associated with $G$. It has cliques 
 of size at most 2 since no edges will be added to the tree in the moralization 
 procedure. 
 \[
@@ -914,18 +934,21 @@ procedure.
         \forall \s C \s \in \mathscr{C}_{\max}
 \]
 where $\mathscr{C}_{\max}$ is the set of maximal cliques in $\bar{G}$.
-This is to say that all cliques will have two nodes.
-Therefore, the probability distribution family associated with $\mathcal{L}(\bar{G})$ 
-with legal factors (potentials) is defined over the exact same set of nodes 
-as previously, making $\mathcal{L}(G) = \mathcal{L}(\bar{G})$. 
+This is to say that all cliques will have two nodes. The 
+factorization of a UGM is done over all maximal cliques:
 \[
         \mathcal{L}(\bar{G}) = \left\{   \text{p is a distribution over }\, X_V
         \,\middle\vert\, 
         p(X_V) = \frac{1}{Z} \prod_{C \in \mathscr{C}_{\max}} \psi_C(x_C) 
  \right\}
 \]
-With this idea in mind, we prove $\mathcal{L}(G) = \mathcal{L}(\bar{G})$ by 
-induction.
+The notion of factor here can be loosely defined as a function of a subset 
+of nodes of the graphs. Using the definition of $\mathcal{L}(G)$ and 
+$\mathcal{\bar{G}}$, we define the equality of these sets if we can find 
+a bijective map between the factors of $p_{G_n}$ and $p_{\bar{G}_n}$ for 
+any $n \geq 1$.
+
+
 \begin{proof}
         Let $G_n = (V, E)$ be a directed tree of size $n = |V|$, the number of nodes 
         in that tree. 
@@ -954,9 +977,16 @@ induction.
         since there is only one clique of the maximal size in that set. 
         We make the following map between the two parametrization:
         \[
-                \psi_1(x_1, x_2) \mapsto f_1(x_1)f_2(x_2 \mid x_1)
+                \psi_1(x_1, x_2)
+                \overset{1:1}{\longleftrightarrow}
+                \underbrace{f_1(x_1)f_2(x_2 \mid x_1)}_
+                {\displaystyle f_1(x_1, x_2)}
         \]
-        Since this is a bijective map between the two sets of factors, the 
+        $f_1(x_1)f_2(x_2 \mid x_1)$ 
+        is a single factor over the set of variables $\{x_2, x_2\}$. 
+
+        This is trivially a bijective map (one-to one mapping) 
+        between the two sets of factors. The 
         set of distribution that can be represented by $G_2$ is equal to the 
         set of distribution represented by $\bar{G}_2$
         \[
@@ -964,6 +994,20 @@ induction.
         \]
 
         Now, we assume that $\mathcal{L}(G_n) = \mathcal{L}(\bar{G}_n)$ is true. 
+        This is to say that there exist a bijective map between 
+        $\{f_i\}_{i=1,\dots,n}$ and $\{\psi_i\}_{i=1,\dots,n}$:
+        \begin{enumerate}
+                \item Each element of $\{\psi_i\}$ 
+                        is paired with at least one element of $\{f_i\}$;
+                \item No element of $\{\psi_i\}$ is paired with more than 
+                        one element of $\{f_i\}$;
+                \item Each element of $\{f_i\}$ is paired with at least 
+                        one element of $\{psi_i\}$;
+                \item No element of $\{f_i\}$ is paired with more than 
+                        one element of $\{\psi_i\}$.
+                
+        \end{enumerate}
+
         For $n + 1$, we have
         \[
                 p_{G_{n + 1}}(X_V) = \prod_{i = 1}^{n+1} f_i(x_i \mid p_{\pi_i})
@@ -993,14 +1037,22 @@ induction.
         \]
         Since we know there exist a bijective map of the factors for the graph of 
         $n$ nodes, then we have found that $G_{n + 1}$ also have a bijective 
-        map between factors:
+        map between its factors because the additional factor of $G_{n + 1}$ 
+        and $\bar{G}_{n + 1}$ are mapped exclusively between themselves:
         \[
-                \psi_{C_{n + 1}}(x_{n + 1}, x_n) \mapsto f_{n + 1}(x_{n + 1} \mid x_n)
+                \psi_{C_{n + 1}}(x_{n + 1}, x_n) 
+                \overset{1:1}{\longleftrightarrow} f_{n + 1}(x_{n + 1} \mid x_n)
         \]
         Therefore
         \[
                 \mathcal{L}(G_{n + 1}) = \mathcal{L}(\bar{G}_{n + 1})
         \]
+        The statement 
+        \[
+                \mathcal{L}(G_n) = \mathcal{L}(\bar{G}_{n+1}),\s \forall \s n
+                \in \mathbb{N}^+
+        \]
+        is proved by induction.
 
 \end{proof}
 
@@ -1117,10 +1169,83 @@ Here, we prove that $P(X_V) \not\in \mathcal{UF}$:
 \end{proof}
 
 
-
-
-
 \section{Bizarre Conditional Independence Properties}
+We let $(X, Y, Z)$ be a random vector with a finite sample size. We consider 
+the following statement
+\begin{equation}\label{eq:Statement}
+        \text{If } X \indep Y \mid Z \s \text{and } X \indep Y \mid \emptyset
+        \implies  (X \indep Z \mid \emptyset \s \text{or } Y \indep Z \mid \emptyset )
+\end{equation} 
+We suppose the premiss to be true. This put a limitations on the family of distributions 
+that are allowed. We show in the figure below the allowed graphical representations 
+of those distributions.
+
+\begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+                % cbr = child below right, pbl = parent below left (snippets)
+                %\tikzset{>=latex}
+                \tikzstyle{every node}=[circle, draw=black, node distance=1.5cm]
+                \tikzstyle{every edge}=[black,  thick, draw]
+                \node (Z) at (0, 0) {Z};
+                \node (X) [below right of = Z] {X};
+                %\draw (Z) edge (X);
+                \node (Y) [below left of = Z] {Y};
+                %\draw (Z) edge (Y);
+
+                \node[rectangle] at (0, -2) {2};
+
+                \draw[dashed] (1.75, 1) -- (1.75, -2);
+                \node (Z) at (3.5, 0) {Z};
+                \node (X) [below right of = Z] {X};
+                %\draw (Z) edge (X);
+                \node (Y) [below left of = Z] {Y};
+                \draw (Z) edge (Y);
+
+
+                \node[rectangle] at (-3.5, -2) {1};
+
+                \draw[dashed] (-1.75, 1) -- (-1.75, -2);
+                \node (Z) at (-3.5, 0) {Z};
+                \node (X) [below right of = Z] {X};
+                \draw (Z) edge (X);
+                \node (Y) [below left of = Z] {Y};
+                %\draw (Z) edge (Y);
+                
+                \node[rectangle] at (3.5, -2) {3};
+                
+        \end{tikzpicture}
+        
+        \caption{Only 3 allowed graph configuration.}
+        \label{fig:}
+\end{figure}
+Those are the only possible configurations because a third link 
+between the 3 random variables will make one of the two premiss false. 
+For example, if we consider $Z$ to be a common cause to $X$ and $Y$, 
+then $X \indep Y \mid Z$ is true but $X$ and $Y$ are not marginally 
+independent. If we would consider a v-structure, then the conditional 
+independence statement would be false. The same hold true for a UGM.
+
+To prove the implication, we go through all possible graphs. The graph labeled 2
+implies that all variable are both marginally independent and 
+conditionally independent since there is no edges. Therefore, 
+\[
+        2 \implies X \indep Z \s \text{and } Y \indep Z 
+\]
+The graphs 1 and 3 have one edge, for which one of the independence statements 
+will fail
+\[
+        1 \implies Y \indep Z ,\s\s 3 \implies Z \indep X
+\]
+Doing a truth values table, we find that of all the possible cases, the statement 
+\[
+         X \indep Y \mid Z \s \text{and } X \indep Y \mid \emptyset
+        \implies  (X \indep Z \mid \emptyset \s \text{or } Y \indep Z \mid \emptyset )
+\]
+always holds. This is true for any positively defined distribution with finite support 
+and infinite support. $\qed$
+
+
 
 \section{EM and Gaussian Mixture}
 \subsubsection{Primer}
@@ -1184,7 +1309,6 @@ $$
 \mathcal{L}_C = \log p(\mathbf{x}, \mathbf{z} \mid  \theta) = \sum_{i = 1}^N \sum_{j = 1}^K
     z_{i, j} \log \mathcal{N}(\mathbf{x}_i \mid \mu_j , \Sigma_j) 
     + z_{i, j} \log \pi_j
-    + (1 - z_{i, j})\log(1 - \pi_j))
 $$
 
 We take the expectation of that likelihood 
@@ -1194,8 +1318,6 @@ $$
  =  \sum_{i = 1}^N \sum_{j = 1}^K
     \mathbb{E}_q[z_{i, j}] (\log \mathcal{N}(\mathbf{x}_i \mid \mu_j , \Sigma_j) 
     +  \log \pi_j)
-    +
-(1 - \mathbb{E}_q[z_{i, j}] )\log(1 - \pi_j)
 $$
 The expectation is taken with respect to the marginal distribution 
 of the cluster assignement variable $z_i$:
@@ -1225,11 +1347,12 @@ $$
                 \mathcal{N}(\mathbf{x}_i \mid \mu_\ell^{(t)}, \Sigma_\ell^{(t)})
 } 
 $$
-At the maximization step, we optimize for the deterministic parameters 
-$\theta^{(t + 1)}$
+At the maximization step, we do the constrained optimization
+for the deterministic parameters using the Lagrange multiplier $\lambda$
 $$
 \theta^{(t + 1)} \overset{\Delta}{=} \underset{\theta}{\text{argmax }} 
-\mathbb{E}_{q^{(t +1)}} [\log p(\mathbf{x}, \mathbf{z} \mid \theta)]
+\mathbb{E}_{q^{(t +1)}} [\log p(\mathbf{x}, \mathbf{z} \mid \theta)] + \lambda 
+\left(1 - \sum_{j = 1}^{K} \pi_j\right)
 $$
 Writing out all the terms except the constant term, 
 \[
@@ -1241,26 +1364,35 @@ Writing out all the terms except the constant term,
         + \log \pi_j
         \right)
         +
-        \left(1 - \Upsilon_{i, j}^{(t+1)} \right)\log(1 - \pi_j)
+        \lambda\left(1 - \sum_{j = 1}^{K} \pi_j\right)
 \]
+
+
 \subsubsection{M-step for $\pi_j$}
 \[
         \partial_{\pi_\ell} \mathcal{L} = \sum_{i=1}^{N} \sum_{j = 1}^{K} 
         \Upsilon_{i, j}^{(t + 1)} \frac{\delta_{j \ell}}{\pi_j} 
         - 
-        (1 - \Upsilon_{i, j}^{(t + 1)}) \frac{\delta_{j\ell}}{1 - \pi_j}
+        \lambda
 \]
 where $\delta_{j\ell}$ is the Kronecker delta coming from the partial derivate.
 The MLE solution is found where this derivative is 0:
 \[
-        \frac{1}{\hat{\pi}_\ell}\sum_{i = 1}^{N} \Upsilon_{i, j}^{(t+1)} 
-        = \frac{1}{1 - \hat{\pi}_{\ell}} (N - \sum_{i = 1}^{N}\Upsilon_{i, j}^{(t+1)})
+        \hat{\pi}_\ell = \frac{1}{\hat{\lambda}}\sum_{i = 1}^{N}
+        \Upsilon_{i,\ell}^{(t + 1)} 
 \]
-By noticing the symmetry between the parameter $\pi_\ell^*$
-and the sum over the soft labels, we 
-conclude that
+From the constraint, we have
 \[
-        \boxed{\hat{\pi}_\ell = \frac{1}{N}\sum_{i = 1}^{N} \Upsilon_{i, j}^{(t + 1)} }
+        \frac{1}{\hat{\lambda}}\sum_{j = 1}^{K}\sum_{i = 1}^{N} 
+        \Upsilon_{i, j}^{(t+1)} = 1
+\]
+But
+\[
+        \sum_{j = 1}^{K}\Upsilon_{i, j} = 1
+\]
+Therefore, $\lambda = N$ and the MLE solution is 
+\[
+        \boxed{\hat{\pi}_\ell = \frac{1}{N}\sum_{i = 1}^{N} \Upsilon_{i, \ell}^{(t+1)}}
 \]
 
 
